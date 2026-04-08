@@ -1,0 +1,101 @@
+# attacker/attack.py
+# Main attack loop — Papernot Model Extraction Attack
+# Algorithm 1 from paper (page 4)
+#
+# Flow:
+# 1. Load seed samples          (seed.py)
+# 2. Query victim API           (query.py)
+# 3. Train substitute model     (train.py)
+# 4. Jacobian augmentation      (augment.py)
+# 5. Repeat for N rounds
+
+from __future__ import annotations
+
+import json
+import numpy as np
+import torch
+from config import DEVICE, ROUNDS, SEED_PER_CLASS, SAVE_PATH, RESULTS_PATH
+
+from attacker.substitute_model import SubstituteCNN
+from attacker.seed              import get_seed_samples
+from attacker.query             import query_victim
+from attacker.train             import train_substitute, evaluate_substitute
+from attacker.augment           import jacobian_augment
+
+  
+# Main attack loop
+def run_attack():
+    # print("=" * 50)
+    # print("Papernot Model Extraction Attack")
+    # print("Paper: Algorithm 1 (page 4)")
+    # print("=" * 50)
+
+    # Initialise substitute model
+    substitute = SubstituteCNN().to(DEVICE)
+ 
+    # Phase 1: Seed (Algorithm 1, rows 6-7) 
+    print("\n[Phase 1] Loading seed samples...")
+    seed_images, _ = get_seed_samples(SEED_PER_CLASS)
+    print(f"  Loaded {len(seed_images)} seed images")
+
+    print("\n[Phase 1] Querying victim API with seed samples...")
+    seed_labels, _ = query_victim(seed_images)
+    print(f"  Received {len(seed_labels)} labels from victim")
+
+    # Current labelled dataset L = {U, F(U)}
+    all_images = seed_images.copy()
+    all_labels = seed_labels.copy()
+
+    results = []
+ 
+    # Phase 2: Duplication rounds (Algorithm 1, rows 12-16) 
+    for round_num in range(1, ROUNDS + 1):
+        print(f"\n[Round {round_num}/{ROUNDS}]")
+        print(f"  Dataset size: {len(all_images)} samples")
+
+        # Row 15: Train substitute on current dataset
+        print(f"  Training substitute model...")
+        substitute = train_substitute(substitute, all_images, all_labels)
+
+        # Measure agreement with victim
+        agreement = evaluate_substitute(substitute, all_images, all_labels)
+        print(f"  Agreement with victim: {agreement*100:.2f}%")
+
+        # Save round results
+        results.append({
+            "round":     round_num,
+            "n_samples": len(all_images),
+            "agreement": round(agreement, 4)
+        })
+
+        # Row 13: Generate synthetic samples via Jacobian augmentation
+        print(f"  Generating synthetic samples (FGSM)...")
+        synthetic_images = jacobian_augment(substitute, all_images, all_labels)
+        print(f"  Generated {len(synthetic_images)} synthetic samples")
+
+        # Row 14: Query victim with synthetic samples
+        print(f"  Querying victim with synthetic samples...")
+        synthetic_labels, _ = query_victim(synthetic_images)
+
+        # Add to dataset L
+        all_images = np.concatenate([all_images, synthetic_images], axis=0)
+        all_labels = all_labels + synthetic_labels
+ 
+    # Final: Save substitute model + results 
+    torch.save(substitute.state_dict(), SAVE_PATH)
+    print(f"\n[Done] Substitute model saved → {SAVE_PATH}")
+
+    with open(RESULTS_PATH, "w") as f:
+        json.dump(results, f, indent=2)
+    print(f"[Done] Results saved → {RESULTS_PATH}")
+
+    # Print summary
+    print("\n[Summary]")
+    print(f"{'Round':<8} {'Samples':<10} {'Agreement'}")
+    print("-" * 30)
+    for r in results:
+        print(f"{r['round']:<8} {r['n_samples']:<10} {r['agreement']*100:.2f}%")
+
+
+if __name__ == "__main__":
+    run_attack()
