@@ -11,11 +11,14 @@ from typing import List
 
 import numpy as np
 import torch
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, File, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from victim.model_def import SimpleCNN
 from config import DEVICE, MODEL_PATH, LOG_PATH
+from PIL import Image
+import io
 
 
 # Load model
@@ -31,6 +34,12 @@ model.eval()
  
 # App
 app = FastAPI(title="Victim MNIST API", version="2.0")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # Schemas
@@ -71,6 +80,13 @@ def root():
 @app.get("/health")
 def health():
     return {"ok": True}
+
+@app.post("/upload")
+async def upload(file: UploadFile = File(...), account_id: str = "manual_user"):
+    contents = await file.read()
+    img = Image.open(io.BytesIO(contents)).convert("L").resize((28, 28))
+    arr = np.array(img, dtype=np.float32) / 255.0
+    return predict(PredictRequest(account_id=account_id, image=arr.tolist()))
 
 @app.post("/predict", response_model=PredictResponse)
 def predict(req: PredictRequest):

@@ -2,12 +2,12 @@
   {
     "round": 1,
     "n_samples": 100,
-    "agreement": 0.59
+    "agreement": 0.1
   },
   {
     "round": 2,
     "n_samples": 200,
-    "agreement": 0.915
+    "agreement": 0.62
   },
   {
     "round": 3,
@@ -17,16 +17,16 @@
   {
     "round": 4,
     "n_samples": 800,
-    "agreement": 0.9912
+    "agreement": 0.995
   },
   {
     "round": 5,
     "n_samples": 1600,
-    "agreement": 0.9756
+    "agreement": 0.9788
   },
   {
     "round": 6,
     "n_samples": 3200,
-    "agreement": 0.9641
+    "agreement": 0.9581
   }
 ]
