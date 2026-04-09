@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MNIST Digit Classifier</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            width: 420px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 22px;
+            margin-bottom: 6px;
+            color: #1a1a1a;
+        }
+
+        p.subtitle {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 24px;
+        }
+
+        .upload-box {
+            border: 2px dashed #d0d0d0;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            margin-bottom: 16px;
+        }
+
+        .upload-box:hover { border-color: #4f46e5; }
+
+        .upload-box input { display: none; }
+
+        .upload-box label {
+            cursor: pointer;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .upload-box label span {
+            color: #4f46e5;
+            font-weight: bold;
+        }
+
+        #preview {
+            display: none;
+            margin: 16px auto;
+            text-align: center;
+        }
+
+        #preview img {
+            width: 112px;
+            height: 112px;
+            image-rendering: pixelated;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            outline: none;
+        }
+
+        input[type="text"]:focus { border-color: #4f46e5; }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover { background: #4338ca; }
+        button:disabled { background: #a5b4fc; cursor: not-allowed; }
+
+        #result {
+            display: none;
+            margin-top: 24px;
+            padding: 20px;
+            background: #f5f3ff;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        #result .digit {
+            font-size: 48px;
+            font-weight: bold;
+            color: #4f46e5;
+        }
+
+        #result .confidence {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        #result .account {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+        }
+
+        #error {
+            display: none;
+            margin-top: 16px;
+            padding: 12px;
+            background: #fef2f2;
+            border-radius: 8px;
+            color: #dc2626;
+            font-size: 13px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>MNIST Digit Classifier</h1>
+        <p class="subtitle">Upload a handwritten digit image to classify it</p>
+
+        <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+            <input type="file" id="fileInput" accept="image/*" onchange="handleFile(this)">
+            <label>
+                Drop image here or <span>browse</span><br>
+                <small style="color:#aaa">PNG, JPG supported</small>
+            </label>
+        </div>
+
+        <div id="preview">
+            <img id="previewImg" src="" alt="preview">
+        </div>
+
+        <input type="text" id="accountId" placeholder="Account ID" value="manual_user">
+
+        <button id="predictBtn" onclick="predict()" disabled>Predict</button>
+
+        <div id="result">
+            <div class="digit" id="digitResult">-</div>
+            <div class="confidence" id="confidenceResult">-</div>
+            <div class="account" id="accountResult">-</div>
+        </div>
+
+        <div id="error" id="errorMsg"></div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+
+        function handleFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            selectedFile = file;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImg').src = e.target.result;
+                document.getElementById('preview').style.display = 'block';
+                document.getElementById('predictBtn').disabled = false;
+                document.getElementById('result').style.display = 'none';
+                document.getElementById('error').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function predict() {
+            if (!selectedFile) return;
+
+            const btn = document.getElementById('predictBtn');
+            btn.disabled = true;
+            btn.textContent = 'Predicting...';
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('account_id', document.getElementById('accountId').value);
+
+            try {
+                const response = await fetch('http://127.0.0.1:8010/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                const confidence = (data.probs[data.pred] * 100).toFixed(2);
+                const accountId = document.getElementById('accountId').value;
+
+                document.getElementById('digitResult').textContent = data.pred;
+                document.getElementById('confidenceResult').textContent = `Confidence: ${confidence}%`;
+                document.getElementById('accountResult').textContent = `Account: ${accountId}`;
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('error').style.display = 'none';
+
+            } catch (err) {
+                document.getElementById('error').textContent = 'Error connecting to server.';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('result').style.display = 'none';
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Predict';
+        }
+    </script>
+</body>
+</html>
