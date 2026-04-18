@@ -8,4 +8,4 @@ logs/
 data/
 .ipynb_checkpoints/
 CLAUDE.md
-*.tmp
+*.tmpimages/
