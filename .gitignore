@@ -11,5 +11,6 @@ __pycache__/
 # Temp
 *.tmp
 *.jsonl
-attacker/attack_results.jsonattacker/substitute_model.pt
+attacker/attack_results.json
+attacker/substitute_model.pt
 CLAUDE.md
