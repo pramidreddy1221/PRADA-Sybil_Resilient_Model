@@ -7,3 +7,5 @@ __pycache__/
 logs/
 data/
 .ipynb_checkpoints/
+CLAUDE.md
+*.tmp

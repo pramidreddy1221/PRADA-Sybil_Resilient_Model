@@ -1,5 +1,3 @@
-# Exports MNIST images as .png files for use in simulation
-
 from pathlib import Path
 from torchvision import datasets, transforms
 from utils.image import save_image
@@ -9,7 +7,7 @@ from config import ROOT
 OUTPUT_DIR = ROOT / "images" / "seed"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-N_PER_CLASS = 10
+N_PER_CLASS = 30
 
 def export_seed_images():
     dataset = datasets.MNIST(

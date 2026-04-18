@@ -1,10 +1,7 @@
-# attacker/seed.py
-# Load small balanced seed samples from already downloaded MNIST data
-
 from pathlib import Path
 import numpy as np
 from torchvision import datasets, transforms
-
+from config import MNIST_PATH
 
 def get_seed_samples(n_per_class: int = 10):
     """

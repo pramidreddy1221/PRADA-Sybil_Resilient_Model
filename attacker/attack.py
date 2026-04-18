@@ -1,14 +1,3 @@
-# attacker/attack.py
-# Main attack loop — Papernot Model Extraction Attack
-# Algorithm 1 from paper (page 4)
-#
-# Flow:
-# 1. Load seed samples          (seed.py)
-# 2. Query victim API           (query.py)
-# 3. Train substitute model     (train.py)
-# 4. Jacobian augmentation      (augment.py)
-# 5. Repeat for N rounds
-
 from __future__ import annotations
 
 import json
@@ -22,18 +11,11 @@ from attacker.query             import query_victim
 from attacker.train             import train_substitute, evaluate_substitute
 from attacker.augment           import jacobian_augment
 
-  
-# Main attack loop
-def run_attack():
-    # print("=" * 50)
-    # print("Papernot Model Extraction Attack")
-    # print("Paper: Algorithm 1 (page 4)")
-    # print("=" * 50)
 
-    # Initialise substitute model
+def run_attack():
     substitute = SubstituteCNN().to(DEVICE)
- 
-    # Phase 1: Seed (Algorithm 1, rows 6-7) 
+
+    # Phase 1: Seed (Algorithm 1, rows 6-7)
     print("\n[Phase 1] Loading seed samples...")
     seed_images, _ = get_seed_samples(SEED_PER_CLASS)
     print(f"  Loaded {len(seed_images)} seed images")
@@ -47,8 +29,8 @@ def run_attack():
     all_labels = seed_labels.copy()
 
     results = []
- 
-    # Phase 2: Duplication rounds (Algorithm 1, rows 12-16) 
+
+    # Phase 2: Duplication rounds (Algorithm 1, rows 12-16)
     for round_num in range(1, ROUNDS + 1):
         print(f"\n[Round {round_num}/{ROUNDS}]")
         print(f"  Dataset size: {len(all_images)} samples")
@@ -57,11 +39,9 @@ def run_attack():
         print(f"  Training substitute model...")
         substitute = train_substitute(substitute, all_images, all_labels)
 
-        # Measure agreement with victim
         agreement = evaluate_substitute(substitute, all_images, all_labels)
         print(f"  Agreement with victim: {agreement*100:.2f}%")
 
-        # Save round results
         results.append({
             "round":     round_num,
             "n_samples": len(all_images),
@@ -80,16 +60,14 @@ def run_attack():
         # Add to dataset L
         all_images = np.concatenate([all_images, synthetic_images], axis=0)
         all_labels = all_labels + synthetic_labels
- 
-    # Final: Save substitute model + results 
+
     torch.save(substitute.state_dict(), SAVE_PATH)
-    print(f"\n[Done] Substitute model saved → {SAVE_PATH}")
+    print(f"\n[Done] Substitute model saved -> {SAVE_PATH}")
 
     with open(RESULTS_PATH, "w") as f:
         json.dump(results, f, indent=2)
-    print(f"[Done] Results saved → {RESULTS_PATH}")
+    print(f"[Done] Results saved -> {RESULTS_PATH}")
 
-    # Print summary
     print("\n[Summary]")
     print(f"{'Round':<8} {'Samples':<10} {'Agreement'}")
     print("-" * 30)

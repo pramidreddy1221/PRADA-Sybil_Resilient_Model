@@ -1,8 +1,3 @@
-# attacker/train.py
-# Train the substitute model on queried (image, label) pairs
-# Follows PAPERNOT fixed training strategy (paper page 5-6):
-# SGD, lr=0.01, momentum=0.9, 10 epochs per round
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -25,7 +20,6 @@ def train_substitute(model, images: np.ndarray, labels: list, epochs: int = 10):
     """
     model.train()
 
-    # Convert to tensors
     X = torch.tensor(images).unsqueeze(1)           # (N, 1, 28, 28)
     y = torch.tensor(labels, dtype=torch.long)      # (N,)
 

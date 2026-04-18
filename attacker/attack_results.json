@@ -2,31 +2,31 @@
   {
     "round": 1,
     "n_samples": 100,
-    "agreement": 0.1
+    "agreement": 0.36
   },
   {
     "round": 2,
     "n_samples": 200,
-    "agreement": 0.62
+    "agreement": 0.885
   },
   {
     "round": 3,
     "n_samples": 400,
-    "agreement": 0.995
+    "agreement": 0.9925
   },
   {
     "round": 4,
     "n_samples": 800,
-    "agreement": 0.995
+    "agreement": 0.9838
   },
   {
     "round": 5,
     "n_samples": 1600,
-    "agreement": 0.9788
+    "agreement": 0.9706
   },
   {
     "round": 6,
     "n_samples": 3200,
-    "agreement": 0.9581
+    "agreement": 0.9613
   }
 ]

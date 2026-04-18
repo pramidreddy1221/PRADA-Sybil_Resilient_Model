@@ -1,7 +1,3 @@
-# api/server.py
-# Victim MNIST Prediction API
-# Responsibility: receive query → validate → infer → log → return prediction
-
 from __future__ import annotations
 
 import time
@@ -20,8 +16,6 @@ from config import DEVICE, MODEL_PATH, LOG_PATH
 from PIL import Image
 import io
 
-
-# Load model
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 if not MODEL_PATH.exists():
@@ -31,8 +25,6 @@ model = SimpleCNN().to(device)
 model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
 model.eval()
 
- 
-# App
 app = FastAPI(title="Victim MNIST API", version="2.0")
 app.add_middleware(
     CORSMiddleware,
@@ -42,7 +34,6 @@ app.add_middleware(
 )
 
 
-# Schemas
 class PredictRequest(BaseModel):
     account_id: str = Field(..., description="Unique account/user identifier")
     image: List[List[float]] = Field(..., description="28x28 nested list, values in [0,1]")
@@ -52,8 +43,6 @@ class PredictResponse(BaseModel):
     probs: List[float]
 
 
- 
-# Helpers
 def validate_image(image: List[List[float]]) -> np.ndarray:
     arr = np.array(image, dtype=np.float32)
     if arr.shape != (28, 28):
@@ -71,8 +60,6 @@ def log_query(record: dict) -> None:
         f.write(json.dumps(record) + "\n")
 
 
- 
-# Routes
 @app.get("/")
 def root():
     return {"service": "Victim MNIST API", "status": "ok", "device": device}
@@ -107,7 +94,7 @@ def predict(req: PredictRequest):
         "timestamp": time.time(),
         "account_id": req.account_id,
         "input_hash": hash_image(x),
-        "input_vector": img.flatten().tolist(),  
+        "input_vector": img.flatten().tolist(),
         "pred": pred,
         "probs": probs.tolist()
     })

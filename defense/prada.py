@@ -1,4 +1,3 @@
-# defense/prada.py
 from config import DELTA, LOG_PATH
 from defense.logs import load_logs
 from defense.distances import compute_dmin_per_account

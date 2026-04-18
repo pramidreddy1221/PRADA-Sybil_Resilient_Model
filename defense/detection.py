@@ -1,4 +1,3 @@
-# defense/detection.py
 import numpy as np
 from scipy.stats import shapiro
 from config import DELTA, MIN_QUERIES

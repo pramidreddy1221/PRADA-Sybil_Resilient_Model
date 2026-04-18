@@ -1,7 +1,3 @@
-# attacker/query.py
-# Query the victim API to get labels for given images
-# This simulates the black-box attack — attacker only sees predictions
-
 import requests
 from config import API_URL
 

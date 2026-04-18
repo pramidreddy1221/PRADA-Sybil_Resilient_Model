@@ -1,14 +1,14 @@
-# Simulates a benign user sending real MNIST images to the API
-
 from pathlib import Path
 from utils.image import load_image
 from config import API_URL
 import requests
+import random
 
 IMAGE_DIR = Path("images/seed")
 
 def simulate_benign(account_id: str = "benign_001"):
-    image_paths = sorted(IMAGE_DIR.glob("*.png"))
+    image_paths = list(IMAGE_DIR.glob("*.png"))
+    random.shuffle(image_paths)  # randomise order so dmin distances are naturally distributed
     
     if not image_paths:
         print("No images found. Run simulation/export.py first.")
