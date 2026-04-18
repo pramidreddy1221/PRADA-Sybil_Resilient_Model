@@ -1,11 +1,14 @@
-.venv/
-venv/
-__pycache__/
-*.pt
-*.pyc
-*.jsonl
+# Generated files
+images/
 logs/
 data/
-.ipynb_checkpoints/
-CLAUDE.md
-*.tmpimages/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Temp
+*.tmp
+*.jsonl
+attacker/attack_results.jsonattacker/substitute_model.pt
