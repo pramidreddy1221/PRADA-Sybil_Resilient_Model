@@ -12,3 +12,4 @@ __pycache__/
 *.tmp
 *.jsonl
 attacker/attack_results.jsonattacker/substitute_model.pt
+CLAUDE.md
