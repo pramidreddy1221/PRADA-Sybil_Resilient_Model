@@ -3,6 +3,24 @@ from defense.logs import load_logs
 from defense.distances import compute_dmin_per_account
 from defense.detection import run_shapiro
 
+
+def run_prada_on_records(records: list, delta: float = DELTA) -> dict:
+    """Run PRADA on an in-memory list of query records. Returns per-account results."""
+    account_dmin_data = compute_dmin_per_account(records)
+    results = {}
+    for acct, data in account_dmin_data.items():
+        sh = run_shapiro(data["D"], delta)
+        results[acct] = {
+            "n_queries":   data["n_queries"],
+            "n_distances": len(data["D"]),
+            "W":           sh["W"],
+            "p_value":     sh["p_value"],
+            "flagged":     sh["flagged"],
+            "reason":      sh["reason"],
+        }
+    return results
+
+
 def run_prada(delta: float = DELTA, log_path=LOG_PATH) -> dict:
     print("=" * 50)
     print("PRADA Detection (Algorithm 3)")
