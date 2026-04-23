@@ -23,3 +23,9 @@ LAMBDA         = 25.5 / 255
 # PRADA
 DELTA       = 0.95
 MIN_QUERIES = 100
+
+# Sybil Detection
+SYBIL_MIN_DMIN     = 10    # min dmin values per account to participate in cross-account analysis
+SYBIL_JS_THRESHOLD = 0.20  # JS divergence below this → two accounts are "similar" (suspicious)
+SYBIL_MIN_CLUSTER  = 3     # min accounts in a similar group before flagging as Sybil
+SYBIL_N_BINS       = 50    # histogram bins for dmin distributions

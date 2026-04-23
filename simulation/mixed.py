@@ -1,67 +1,82 @@
-from pathlib import Path
-from utils.image import load_image, save_image
-from config import API_URL, LAMBDA, SAVE_PATH, DEVICE
-import requests
+"""
+simulation/mixed.py — Mixed Attack Simulation
+
+A smarter single-account attacker who mixes normal images
+with synthetic JbDA queries to dilute the attack pattern.
+
+Strategy:
+  - Runs full 6-round JbDA attack like attacker_001
+  - After each round, injects NORMAL_RATIO normal images
+  - Goal: make dmin distribution look more natural
+  - Tests whether Shapiro-Wilk can still detect this
+
+Normal ratio: 30% normal, 70% synthetic per round
+"""
+
 import numpy as np
 import torch
-import torch.nn as nn
+from config import DEVICE, ROUNDS, SEED_PER_CLASS, SAVE_PATH
+
 from attacker.substitute_model import SubstituteCNN
+from attacker.seed              import get_seed_samples
+from attacker.query             import query_victim
+from attacker.train             import train_substitute, evaluate_substitute
+from attacker.augment           import jacobian_augment
 
-IMAGE_DIR  = Path("images/seed")
-SYNTH_DIR  = Path("images/synthetic")
-SYNTH_DIR.mkdir(parents=True, exist_ok=True)
+ACCOUNT_ID   = "mixed_001"
+NORMAL_RATIO = 0.30
 
-def generate_synthetic(model, arr: np.ndarray, label: int) -> np.ndarray:
-    """Apply FGSM to a single image."""
-    model.eval()
-    X = torch.tensor(arr).unsqueeze(0).unsqueeze(0).to(DEVICE)
-    X.requires_grad_(True)
-    y = torch.tensor([label], dtype=torch.long).to(DEVICE)
-    loss = nn.CrossEntropyLoss()(model(X), y)
-    loss.backward()
-    with torch.no_grad():
-        synthetic = X + LAMBDA * X.grad.sign()
-        synthetic = torch.clamp(synthetic, 0.0, 1.0)
-    return synthetic.squeeze().cpu().numpy()
 
-def simulate_mixed(account_id: str = "mixed_001", normal_ratio: float = 0.5):
-    """
-    Send a mix of normal and synthetic images from a single account.
-    normal_ratio: proportion of normal images (0.5 = 50/50 split).
-    """
-    model = SubstituteCNN().to(DEVICE)
-    model.load_state_dict(torch.load(SAVE_PATH, map_location=DEVICE))
+def run_mixed_attack(ratio=0.30, account_id="mixed_001"):
+    substitute = SubstituteCNN().to(DEVICE)
 
-    image_paths = sorted(IMAGE_DIR.glob("*.png"))
+    # Phase 1: Seed — same as real attacker
+    print(f"\n[Mixed Attack] Account: {account_id}")
+    print(f"[Phase 1] Loading seed samples...")
+    seed_images, _ = get_seed_samples(SEED_PER_CLASS)
+    print(f"  Loaded {len(seed_images)} seed images")
 
-    if not image_paths:
-        print("No images found. Run simulation/export.py first.")
-        return
+    print(f"[Phase 1] Querying victim with seed samples...")
+    seed_labels, _ = query_victim(seed_images, account_id=account_id)
 
-    print(f"Simulating mixed user: {account_id}")
-    print(f"Normal ratio: {normal_ratio*100}% normal, {(1-normal_ratio)*100}% synthetic")
-    print(f"Total images: {len(image_paths)}")
-    print("-" * 40)
+    all_images = seed_images.copy()
+    all_labels = seed_labels.copy()
 
-    for i, path in enumerate(image_paths):
-        arr = load_image(path)
-        label = int(path.stem.split("_")[1])  # extract label from filename
+    # Keep a pool of normal images to inject each round
+    normal_pool = seed_images.copy()
 
-        if np.random.random() < normal_ratio:
-            image_type = "normal"
-            send_arr = arr
-        else:
-            image_type = "synthetic"
-            send_arr = generate_synthetic(model, arr, label)
-            save_image(send_arr, SYNTH_DIR / f"synth_{path.name}")
+    for round_num in range(1, ROUNDS + 1):
+        print(f"\n[Round {round_num}/{ROUNDS}]")
+        print(f"  Dataset size: {len(all_images)} samples")
 
-        payload = {"account_id": account_id, "image": send_arr.tolist()}
-        response = requests.post(API_URL, json=payload)
-        if response.status_code == 200:
-            data = response.json()
-            print(f"  [{image_type}] {path.name} -> pred: {data['pred']}")
-        else:
-            print(f"  {path.name} -> failed: {response.status_code}")
+        # Train substitute
+        substitute = train_substitute(substitute, all_images, all_labels)
+        agreement  = evaluate_substitute(substitute, all_images, all_labels)
+        print(f"  Agreement: {agreement*100:.2f}%")
+
+        # Generate synthetic samples
+        synthetic_images = jacobian_augment(substitute, all_images, all_labels)
+        print(f"  Generated {len(synthetic_images)} synthetic samples")
+
+        # Query victim with synthetic samples
+        synthetic_labels, _ = query_victim(synthetic_images, account_id=account_id)
+
+        # Inject normal images — ratio% of synthetic count
+        n_normal = max(1, int(len(synthetic_images) * ratio))
+        indices  = np.random.choice(len(normal_pool), size=n_normal, replace=True)
+        normal_batch = normal_pool[indices]
+
+        print(f"  Injecting {n_normal} normal images ({ratio*100:.0f}% of synthetic)...")
+        normal_labels, _ = query_victim(normal_batch, account_id=account_id)
+
+        # Add synthetic + normal to dataset
+        all_images = np.concatenate([all_images, synthetic_images, normal_batch], axis=0)
+        all_labels = all_labels + synthetic_labels + normal_labels
+
+    torch.save(substitute.state_dict(), SAVE_PATH)
+    print(f"\n[Done] Mixed attack complete")
+    print(f"  Total queries sent: check logs/queries.jsonl for {account_id}")
+
 
 if __name__ == "__main__":
-    simulate_mixed()
+    run_mixed_attack()
