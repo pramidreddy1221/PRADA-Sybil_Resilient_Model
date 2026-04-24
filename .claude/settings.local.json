@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(grep -E \"\\\\.\\(md|txt|json|yaml|yml|toml|cfg\\)$\")"
+      "Bash(grep -E \"\\\\.\\(md|txt|json|yaml|yml|toml|cfg\\)$\")",
+      "Bash(xargs grep *)",
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python analysis/metric_comparison.py)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\mvpra\\OneDrive\\Desktop\\Pramid\\Documents\\TextBooks\\Master's Project\\Project"
     ]
   }
 }
