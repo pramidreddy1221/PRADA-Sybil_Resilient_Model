@@ -138,9 +138,12 @@ if __name__ == "__main__":
 
         vectors = [np.array(r["input_vector"], dtype=np.float32) for r in records]
 
+        WINDOW = 100
         D = []
         for i in range(1, len(vectors)):
-            dists = [np.linalg.norm(vectors[i] - vectors[j]) for j in range(i)]
+            start = max(0, i - WINDOW)
+            dists = [np.linalg.norm(vectors[i] - vectors[j])
+                     for j in range(start, i)]
             D.append(min(dists))
 
         if len(D) < 100:

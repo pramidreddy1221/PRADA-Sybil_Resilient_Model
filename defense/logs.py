@@ -4,6 +4,8 @@ from config import LOG_PATH
 
 def load_logs(log_path: Path = LOG_PATH) -> list[dict]:
     records = []
+    if not log_path.exists():
+        return records
     with log_path.open("r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()

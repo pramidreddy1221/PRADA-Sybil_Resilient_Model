@@ -56,21 +56,22 @@ def run_mixed_attack(ratio=0.30, account_id="mixed_001"):
 
         # Generate synthetic samples
         synthetic_images = jacobian_augment(substitute, all_images, all_labels)
-        print(f"  Generated {len(synthetic_images)} synthetic samples")
+        n_total     = len(synthetic_images)
+        n_synthetic = int(n_total * (1 - ratio))
+        n_normal    = n_total - n_synthetic
+        print(f"  Generated {n_total} synthetic samples")
+        print(f"  Querying {n_synthetic} synthetic + {n_normal} normal ({ratio*100:.0f}% normal)")
 
-        # Query victim with synthetic samples
-        synthetic_labels, _ = query_victim(synthetic_images, account_id=account_id)
+        # Query only n_synthetic synthetic images
+        synthetic_labels, _ = query_victim(synthetic_images[:n_synthetic], account_id=account_id)
 
-        # Inject normal images — ratio% of synthetic count
-        n_normal = max(1, int(len(synthetic_images) * ratio))
-        indices  = np.random.choice(len(normal_pool), size=n_normal, replace=True)
+        # Query n_normal images from normal pool
+        indices      = np.random.choice(len(normal_pool), size=n_normal, replace=True)
         normal_batch = normal_pool[indices]
-
-        print(f"  Injecting {n_normal} normal images ({ratio*100:.0f}% of synthetic)...")
         normal_labels, _ = query_victim(normal_batch, account_id=account_id)
 
-        # Add synthetic + normal to dataset
-        all_images = np.concatenate([all_images, synthetic_images, normal_batch], axis=0)
+        # Add ALL synthetic images to training; labels from queried images
+        all_images = np.concatenate([all_images, synthetic_images], axis=0)
         all_labels = all_labels + synthetic_labels + normal_labels
 
     torch.save(substitute.state_dict(), SAVE_PATH)

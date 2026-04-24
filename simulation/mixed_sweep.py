@@ -17,8 +17,8 @@ if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
 from simulation.mixed import run_mixed_attack
-from defense.logs import load_logs
 from defense.prada import run_prada_on_records
+from defense.logs import load_logs
 from config import LOG_PATH
 
 RATIOS = [0.10, 0.20, 0.30, 0.50, 0.70, 0.90]
@@ -54,25 +54,16 @@ def run_sweep():
         run_mixed_attack(ratio=ratio, account_id=account_id)
 
     # ------------------------------------------------------------------ #
-    # Phase 2: Load logs and run PRADA on sweep + reference accounts       #
+    # Phase 2 + 3: Run PRADA and print table                               #
     # ------------------------------------------------------------------ #
-    print(f"\n{'='*62}")
-    print("  Running PRADA detection on all accounts…")
-    print(f"{'='*62}")
+    ACCOUNTS = ["mixed_010", "mixed_020", "mixed_030",
+                "mixed_050", "mixed_070", "mixed_090",
+                "attacker_001", "benign_001"]
 
     all_records = load_logs(LOG_PATH)
+    filtered    = [r for r in all_records if r["account_id"] in ACCOUNTS]
+    results     = run_prada_on_records(filtered)
 
-    sweep_records    = [r for r in all_records if r["account_id"] in ACCOUNT_IDS]
-    attacker_records = [r for r in all_records if r["account_id"] == "attacker_001"]
-    benign_records   = [r for r in all_records if r["account_id"] == "benign_001"]
-
-    prada_sweep    = run_prada_on_records(sweep_records)    if sweep_records    else {}
-    prada_attacker = run_prada_on_records(attacker_records) if attacker_records else {}
-    prada_benign   = run_prada_on_records(benign_records)   if benign_records   else {}
-
-    # ------------------------------------------------------------------ #
-    # Phase 3: Print comparison table                                      #
-    # ------------------------------------------------------------------ #
     print(f"\n\n{'='*62}")
     print("  PRADA Detection — Normal Ratio Sweep")
     print(f"{'='*62}")
@@ -80,7 +71,7 @@ def run_sweep():
     print("  " + "─" * 56)
 
     for ratio, account_id in zip(RATIOS, ACCOUNT_IDS):
-        res        = prada_sweep.get(account_id, {})
+        res        = results.get(account_id, {})
         w          = res.get("W")
         flagged    = res.get("flagged", False)
         w_str      = f"{w:.4f}" if w is not None else "warmup"
@@ -92,16 +83,14 @@ def run_sweep():
     # Reference rows
     print("  " + "─" * 56)
 
-    r_att    = prada_attacker.get("attacker_001", {})
-    w_att    = r_att.get("W")
-    w_att_s  = f"{w_att:.4f}" if w_att is not None else "N/A"
+    r_att    = results.get("attacker_001", {})
+    w_att_s  = f"{r_att['W']:.4f}" if r_att.get("W") is not None else "N/A"
     flag_att = "YES" if r_att.get("flagged", False) else "NO"
     print(f"  {'attacker_001':<14}  {'0%':>8}  {'100%':>7}  {w_att_s:>8}  {flag_att}"
           "  ← pure attack baseline")
 
-    r_ben    = prada_benign.get("benign_001", {})
-    w_ben    = r_ben.get("W")
-    w_ben_s  = f"{w_ben:.4f}" if w_ben is not None else "N/A"
+    r_ben    = results.get("benign_001", {})
+    w_ben_s  = f"{r_ben['W']:.4f}" if r_ben.get("W") is not None else "N/A"
     flag_ben = "YES" if r_ben.get("flagged", False) else "NO"
     print(f"  {'benign_001':<14}  {'100%':>8}  {'0%':>7}  {w_ben_s:>8}  {flag_ben}"
           "  ← pure benign baseline")

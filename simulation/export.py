@@ -7,7 +7,7 @@ from config import ROOT
 OUTPUT_DIR = ROOT / "images" / "seed"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-N_PER_CLASS = 30
+N_PER_CLASS = 300
 
 def export_seed_images():
     dataset = datasets.MNIST(
