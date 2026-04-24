@@ -41,3 +41,74 @@ def jacobian_augment(model, images: np.ndarray, labels: list) -> np.ndarray:
         synthetic = torch.clamp(synthetic, 0.0, 1.0)
 
     return synthetic.squeeze(1).cpu().numpy()
+
+
+def jacobian_augment_ifgsm(model, images: np.ndarray, labels: list, n_steps: int = 10) -> np.ndarray:
+    """
+    Iterative FGSM augmentation (I-FGSM / Basic Iterative Method).
+
+    Spreads the total perturbation budget LAMBDA across n_steps steps,
+    clamping to [0,1] after each step. Produces stronger perturbations
+    than single-step FGSM by following the gradient repeatedly.
+
+    step_size = LAMBDA / n_steps
+    x_{t+1} = clip(x_t + step_size · sign(∇x L(F'(x_t, ci))), 0, 1)
+    """
+    model.eval()
+    step_size = LAMBDA / n_steps
+
+    X = torch.tensor(images).unsqueeze(1).to(DEVICE)
+    y = torch.tensor(labels, dtype=torch.long).to(DEVICE)
+    loss_fn = nn.CrossEntropyLoss()
+
+    X_adv = X.clone().detach()
+
+    for _ in range(n_steps):
+        X_adv = X_adv.clone().detach().requires_grad_(True)
+        logits = model(X_adv)
+        loss = loss_fn(logits, y)
+        loss.backward()
+
+        with torch.no_grad():
+            X_adv = X_adv + step_size * X_adv.grad.sign()
+            X_adv = torch.clamp(X_adv, 0.0, 1.0)
+
+    return X_adv.squeeze(1).cpu().numpy()
+
+
+def jacobian_augment_mifgsm(model, images: np.ndarray, labels: list, n_steps: int = 10, mu: float = 1.0) -> np.ndarray:
+    """
+    Momentum Iterative FGSM augmentation (MI-FGSM, Dong et al. 2018).
+
+    Accumulates a momentum buffer g of L1-normalised gradient directions
+    across steps, then updates with sign(g). Momentum stabilises the
+    gradient direction and escapes flat regions better than I-FGSM.
+
+    g_{t+1} = μ · g_t + ∇x L / ||∇x L||₁
+    x_{t+1} = clip(x_t + step_size · sign(g_{t+1}), 0, 1)
+    """
+    model.eval()
+    step_size = LAMBDA / n_steps
+
+    X = torch.tensor(images).unsqueeze(1).to(DEVICE)
+    y = torch.tensor(labels, dtype=torch.long).to(DEVICE)
+    loss_fn = nn.CrossEntropyLoss()
+
+    X_adv = X.clone().detach()
+    momentum = torch.zeros_like(X_adv)
+
+    for _ in range(n_steps):
+        X_adv = X_adv.clone().detach().requires_grad_(True)
+        logits = model(X_adv)
+        loss = loss_fn(logits, y)
+        loss.backward()
+
+        with torch.no_grad():
+            grad = X_adv.grad
+            l1_norm = grad.abs().sum(dim=(1, 2, 3), keepdim=True)
+            grad_norm = grad / (l1_norm + 1e-8)
+            momentum = mu * momentum + grad_norm
+            X_adv = X_adv + step_size * momentum.sign()
+            X_adv = torch.clamp(X_adv, 0.0, 1.0)
+
+    return X_adv.squeeze(1).cpu().numpy()

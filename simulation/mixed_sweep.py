@@ -41,7 +41,12 @@ def run_sweep():
     # ------------------------------------------------------------------ #
     # Phase 1: Run all attacks sequentially                                #
     # ------------------------------------------------------------------ #
+    existing_accounts = {r["account_id"] for r in load_logs(LOG_PATH)}
+
     for ratio, account_id in zip(RATIOS, ACCOUNT_IDS):
+        if account_id in existing_accounts:
+            print(f"Skipping {account_id} — already in log")
+            continue
         print(f"\n{'─'*62}")
         print(f"  ratio={ratio:.2f}  ({ratio*100:.0f}% normal / {(1-ratio)*100:.0f}% synthetic)"
               f"  →  {account_id}")
