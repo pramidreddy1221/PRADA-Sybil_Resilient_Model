@@ -1,0 +1,110 @@
+[
+  {
+    "threshold": 0.05,
+    "source": "pure",
+    "within_js": 0.11071214770025062,
+    "cross_js": 0.28439080701106445,
+    "gap": 0.17367865931081383,
+    "detected": false,
+    "FP": false
+  },
+  {
+    "threshold": 0.1,
+    "source": "pure",
+    "within_js": 0.11071214770025062,
+    "cross_js": 0.28439080701106445,
+    "gap": 0.17367865931081383,
+    "detected": true,
+    "FP": false
+  },
+  {
+    "threshold": 0.15,
+    "source": "pure",
+    "within_js": 0.11071214770025062,
+    "cross_js": 0.28439080701106445,
+    "gap": 0.17367865931081383,
+    "detected": true,
+    "FP": false
+  },
+  {
+    "threshold": 0.2,
+    "source": "pure",
+    "within_js": 0.11071214770025062,
+    "cross_js": 0.28439080701106445,
+    "gap": 0.17367865931081383,
+    "detected": true,
+    "FP": false
+  },
+  {
+    "threshold": 0.25,
+    "source": "pure",
+    "within_js": 0.11071214770025062,
+    "cross_js": 0.28439080701106445,
+    "gap": 0.17367865931081383,
+    "detected": true,
+    "FP": true
+  },
+  {
+    "threshold": 0.3,
+    "source": "pure",
+    "within_js": 0.11071214770025062,
+    "cross_js": 0.28439080701106445,
+    "gap": 0.17367865931081383,
+    "detected": true,
+    "FP": true
+  },
+  {
+    "threshold": 0.05,
+    "source": "mixed",
+    "within_js": 0.12127694487418249,
+    "cross_js": 0.269483026210928,
+    "gap": 0.1482060813367455,
+    "detected": false,
+    "FP": false
+  },
+  {
+    "threshold": 0.1,
+    "source": "mixed",
+    "within_js": 0.12127694487418249,
+    "cross_js": 0.269483026210928,
+    "gap": 0.1482060813367455,
+    "detected": true,
+    "FP": false
+  },
+  {
+    "threshold": 0.15,
+    "source": "mixed",
+    "within_js": 0.12127694487418249,
+    "cross_js": 0.269483026210928,
+    "gap": 0.1482060813367455,
+    "detected": true,
+    "FP": false
+  },
+  {
+    "threshold": 0.2,
+    "source": "mixed",
+    "within_js": 0.12127694487418249,
+    "cross_js": 0.269483026210928,
+    "gap": 0.1482060813367455,
+    "detected": true,
+    "FP": false
+  },
+  {
+    "threshold": 0.25,
+    "source": "mixed",
+    "within_js": 0.12127694487418249,
+    "cross_js": 0.269483026210928,
+    "gap": 0.1482060813367455,
+    "detected": true,
+    "FP": true
+  },
+  {
+    "threshold": 0.3,
+    "source": "mixed",
+    "within_js": 0.12127694487418249,
+    "cross_js": 0.269483026210928,
+    "gap": 0.1482060813367455,
+    "detected": true,
+    "FP": true
+  }
+]

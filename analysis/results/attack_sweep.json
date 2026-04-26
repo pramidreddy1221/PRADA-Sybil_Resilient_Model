@@ -1,0 +1,32 @@
+[
+  {
+    "account_id": "attacker_001",
+    "method": "baseline FGSM",
+    "W": 0.9264,
+    "flagged": true
+  },
+  {
+    "account_id": "attacker_fgsm",
+    "method": "FGSM",
+    "W": 0.9132,
+    "flagged": true
+  },
+  {
+    "account_id": "attacker_ifgsm",
+    "method": "I-FGSM",
+    "W": 0.9199,
+    "flagged": true
+  },
+  {
+    "account_id": "attacker_mifgsm",
+    "method": "MI-FGSM",
+    "W": 0.9163,
+    "flagged": true
+  },
+  {
+    "account_id": "benign_001",
+    "method": "benign",
+    "W": 0.9864,
+    "flagged": false
+  }
+]

@@ -159,8 +159,8 @@ def separation_stats(
 
 def main() -> None:
     all_records = load_logs(LOG_PATH)
-    attacker_records = [r for r in all_records if r["account_id"] == "attacker_001"]
-    benign_records   = [r for r in all_records if r["account_id"] == BENIGN_ID]
+    attacker_records = [r for r in all_records if r["account_id"] == "attacker_001"][:6400]
+    benign_records   = [r for r in all_records if r["account_id"] == BENIGN_ID][:3000]
 
     if not attacker_records:
         print("ERROR: No attacker_001 records in log.")
@@ -218,6 +218,7 @@ def main() -> None:
     print(hdr)
     print("-" * len(hdr))
 
+    metric_rows = []
     for name, fn in metrics:
         accounts, matrix = compute_pairwise_matrix(histograms, fn)
         within, cross, gap, separates = separation_stats(accounts, matrix, BENIGN_ID)
@@ -225,8 +226,18 @@ def main() -> None:
             f"{name:<14} {within:>13.4f} {cross:>13.4f} {gap:>10.4f}"
             f" {'YES' if separates else 'NO':>10}"
         )
+        metric_rows.append({
+            "metric": name, "within_mean": within,
+            "cross_mean": cross, "gap": gap, "separates": separates,
+        })
 
     print()
+
+    import json
+    out_path = _ROOT / "analysis" / "results" / "metric_comparison.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(metric_rows, indent=2), encoding="utf-8")
+    print(f"Saved → {out_path.relative_to(_ROOT)}")
 
 
 if __name__ == "__main__":

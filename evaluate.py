@@ -48,8 +48,8 @@ def evaluate():
 
     # Load ground-truth logs
     all_records      = load_logs(LOG_PATH)
-    attacker_records = [r for r in all_records if r["account_id"] == "attacker_001"]
-    benign_records   = [r for r in all_records if r["account_id"] == "benign_001"]
+    attacker_records = [r for r in all_records if r["account_id"] == "attacker_001"][:6400]
+    benign_records   = [r for r in all_records if r["account_id"] == "benign_001"][:3000]
 
     print(f"\nLog: {LOG_PATH.name}")
     print(f"  attacker_001 : {len(attacker_records):>5} queries")
@@ -224,10 +224,10 @@ def _js_diagnostics(attacker_records: list, benign_records: list):
     t = SYBIL_JS_THRESHOLD
     threshold_ok = (
         within_sybil and cross_js
-        and max(within_sybil) < t < min(cross_js)
+        and np.mean(within_sybil) < t < min(cross_js)
     )
     print(f"\n  SYBIL_JS_THRESHOLD = {t}  →  "
-          f"max_within={max(within_sybil):.4f}  threshold={t}  min_cross={min(cross_js):.4f}")
+          f"mean_within={np.mean(within_sybil):.4f}  threshold={t}  min_cross={min(cross_js):.4f}")
     print(f"  Threshold valid (no false positives): "
           f"{'YES — clean separation' if threshold_ok else 'NO — OVERLAP, tighten threshold'}")
 

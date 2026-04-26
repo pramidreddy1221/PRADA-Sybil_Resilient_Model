@@ -3,10 +3,21 @@
     "allow": [
       "Bash(grep -E \"\\\\.\\(md|txt|json|yaml|yml|toml|cfg\\)$\")",
       "Bash(xargs grep *)",
-      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python analysis/metric_comparison.py)"
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python analysis/metric_comparison.py)",
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python -c \"from attacker.train import train_substitute, train_substitute_cvsearch, evaluate_substitute; print\\('train.py OK'\\)\")",
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python -c \"from attacker.attack import run_attack, run_attack_cvsearch; print\\('attack.py OK'\\)\")",
+      "Bash(python -c \"import sys,json; [print\\(json.loads\\(l\\).keys\\(\\)\\) for l in sys.stdin if l.strip\\(\\)]\")",
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python -c \"import json; f=open\\('logs/queries.jsonl'\\); r=json.loads\\(f.readline\\(\\)\\); print\\(list\\(r.keys\\(\\)\\)\\); print\\('account_id:', r['account_id']\\); print\\('pred:', r.get\\('pred'\\)\\)\")",
+      "Bash(.venv/Scripts/python -c ' *)",
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python analysis/warmup_tradeoff.py)",
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python analysis/js_tradeoff.py)",
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python analysis/graphs.py)",
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/pip install matplotlib --quiet)"
     ],
     "additionalDirectories": [
-      "c:\\Users\\mvpra\\OneDrive\\Desktop\\Pramid\\Documents\\TextBooks\\Master's Project\\Project"
+      "c:\\Users\\mvpra\\OneDrive\\Desktop\\Pramid\\Documents\\TextBooks\\Master's Project\\Project",
+      "c:\\Users\\mvpra\\.claude\\projects\\c--Users-mvpra-OneDrive-Desktop-Pramid-Documents-TextBooks-Master-s-Project-Project\\memory",
+      "c:\\Users\\mvpra\\OneDrive\\Desktop\\Pramid\\Documents\\TextBooks\\Master's Project\\Project\\cleanup"
     ]
   }
 }

@@ -145,3 +145,10 @@ if __name__ == "__main__":
 
     prada_results = run_prada_on_records(sweep_records)
     print_prada_table(prada_results)
+
+    import json
+    out_path = _ROOT / "analysis" / "results" / "attack_sweep.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    save_data = {acct: {"W": r["W"], "flagged": r["flagged"]} for acct, r in prada_results.items()}
+    out_path.write_text(json.dumps(save_data, indent=2), encoding="utf-8")
+    print(f"\nSaved → {out_path.relative_to(_ROOT)}")

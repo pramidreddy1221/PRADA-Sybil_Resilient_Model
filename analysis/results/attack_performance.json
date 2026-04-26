@@ -1,0 +1,72 @@
+{
+  "attacker_001": {
+    "method": "PAPERNOT fixed lr=0.01 epochs=10",
+    "rounds": [
+      {
+        "round": 1,
+        "n_samples": 100,
+        "agreement": 0.44
+      },
+      {
+        "round": 2,
+        "n_samples": 200,
+        "agreement": 0.92
+      },
+      {
+        "round": 3,
+        "n_samples": 400,
+        "agreement": 0.9875
+      },
+      {
+        "round": 4,
+        "n_samples": 800,
+        "agreement": 0.9812
+      },
+      {
+        "round": 5,
+        "n_samples": 1600,
+        "agreement": 0.97
+      },
+      {
+        "round": 6,
+        "n_samples": 3200,
+        "agreement": 0.9656
+      }
+    ]
+  },
+  "attacker_cvsearch": {
+    "method": "CV-SEARCH lr=0.01 epochs=160",
+    "rounds": [
+      {
+        "round": 1,
+        "n_samples": 100,
+        "agreement": 1.0
+      },
+      {
+        "round": 2,
+        "n_samples": 200,
+        "agreement": 1.0
+      },
+      {
+        "round": 3,
+        "n_samples": 400,
+        "agreement": 1.0
+      },
+      {
+        "round": 4,
+        "n_samples": 800,
+        "agreement": 1.0
+      },
+      {
+        "round": 5,
+        "n_samples": 1600,
+        "agreement": 1.0
+      },
+      {
+        "round": 6,
+        "n_samples": 3200,
+        "agreement": 1.0
+      }
+    ]
+  }
+}

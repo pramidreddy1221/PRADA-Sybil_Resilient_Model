@@ -1,0 +1,74 @@
+[
+  {
+    "N": 4,
+    "qpa": 1600,
+    "prada_flagged_count": 2,
+    "js_detected": true,
+    "combined": true,
+    "FP": false
+  },
+  {
+    "N": 8,
+    "qpa": 800,
+    "prada_flagged_count": 8,
+    "js_detected": true,
+    "combined": true,
+    "FP": false
+  },
+  {
+    "N": 16,
+    "qpa": 400,
+    "prada_flagged_count": 16,
+    "js_detected": true,
+    "combined": true,
+    "FP": false
+  },
+  {
+    "N": 32,
+    "qpa": 200,
+    "prada_flagged_count": 32,
+    "js_detected": true,
+    "combined": true,
+    "FP": false
+  },
+  {
+    "N": 56,
+    "qpa": 114,
+    "prada_flagged_count": 52,
+    "js_detected": true,
+    "combined": true,
+    "FP": false
+  },
+  {
+    "N": 64,
+    "qpa": 100,
+    "prada_flagged_count": 0,
+    "js_detected": true,
+    "combined": true,
+    "FP": false
+  },
+  {
+    "N": 128,
+    "qpa": 50,
+    "prada_flagged_count": 0,
+    "js_detected": true,
+    "combined": true,
+    "FP": false
+  },
+  {
+    "N": 192,
+    "qpa": 33,
+    "prada_flagged_count": 0,
+    "js_detected": true,
+    "combined": true,
+    "FP": false
+  },
+  {
+    "N": 256,
+    "qpa": 25,
+    "prada_flagged_count": 0,
+    "js_detected": true,
+    "combined": true,
+    "FP": false
+  }
+]

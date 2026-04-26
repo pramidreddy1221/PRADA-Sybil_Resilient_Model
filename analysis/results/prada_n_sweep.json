@@ -1,0 +1,65 @@
+[
+  {
+    "N": 4,
+    "qpa": 1600,
+    "flagged_count": 4,
+    "warmup_count": 0,
+    "detection_pct": 100.0
+  },
+  {
+    "N": 8,
+    "qpa": 800,
+    "flagged_count": 8,
+    "warmup_count": 0,
+    "detection_pct": 100.0
+  },
+  {
+    "N": 16,
+    "qpa": 400,
+    "flagged_count": 16,
+    "warmup_count": 0,
+    "detection_pct": 100.0
+  },
+  {
+    "N": 32,
+    "qpa": 200,
+    "flagged_count": 32,
+    "warmup_count": 0,
+    "detection_pct": 100.0
+  },
+  {
+    "N": 56,
+    "qpa": 114,
+    "flagged_count": 56,
+    "warmup_count": 0,
+    "detection_pct": 100.0
+  },
+  {
+    "N": 64,
+    "qpa": 100,
+    "flagged_count": 0,
+    "warmup_count": 64,
+    "detection_pct": 0.0
+  },
+  {
+    "N": 128,
+    "qpa": 50,
+    "flagged_count": 0,
+    "warmup_count": 128,
+    "detection_pct": 0.0
+  },
+  {
+    "N": 192,
+    "qpa": 33,
+    "flagged_count": 0,
+    "warmup_count": 192,
+    "detection_pct": 0.0
+  },
+  {
+    "N": 256,
+    "qpa": 25,
+    "flagged_count": 0,
+    "warmup_count": 256,
+    "detection_pct": 0.0
+  }
+]

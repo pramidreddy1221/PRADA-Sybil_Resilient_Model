@@ -1,0 +1,17 @@
+[
+  {
+    "account_id": "attacker_001",
+    "W": 0.9264,
+    "flagged": true
+  },
+  {
+    "account_id": "attacker_cvsearch",
+    "W": 0.9253,
+    "flagged": true
+  },
+  {
+    "account_id": "benign_001",
+    "W": 0.9864,
+    "flagged": false
+  }
+]

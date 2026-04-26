@@ -1,0 +1,56 @@
+[
+  {
+    "min_queries": 25,
+    "sybil_flagged": 10,
+    "sybil_warmup": 0,
+    "sybil_total": 64,
+    "detection_rate": 0.15625,
+    "benign_flagged": false,
+    "unsplit_flagged": true
+  },
+  {
+    "min_queries": 50,
+    "sybil_flagged": 10,
+    "sybil_warmup": 0,
+    "sybil_total": 64,
+    "detection_rate": 0.15625,
+    "benign_flagged": false,
+    "unsplit_flagged": true
+  },
+  {
+    "min_queries": 75,
+    "sybil_flagged": 10,
+    "sybil_warmup": 0,
+    "sybil_total": 64,
+    "detection_rate": 0.15625,
+    "benign_flagged": false,
+    "unsplit_flagged": true
+  },
+  {
+    "min_queries": 100,
+    "sybil_flagged": 0,
+    "sybil_warmup": 64,
+    "sybil_total": 64,
+    "detection_rate": 0.0,
+    "benign_flagged": false,
+    "unsplit_flagged": true
+  },
+  {
+    "min_queries": 150,
+    "sybil_flagged": 0,
+    "sybil_warmup": 64,
+    "sybil_total": 64,
+    "detection_rate": 0.0,
+    "benign_flagged": false,
+    "unsplit_flagged": true
+  },
+  {
+    "min_queries": 200,
+    "sybil_flagged": 0,
+    "sybil_warmup": 64,
+    "sybil_total": 64,
+    "detection_rate": 0.0,
+    "benign_flagged": false,
+    "unsplit_flagged": true
+  }
+]

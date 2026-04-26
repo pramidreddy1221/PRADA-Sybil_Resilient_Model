@@ -1,0 +1,14 @@
+[
+  {
+    "account_id": "attacker_001",
+    "method": "PAPERNOT fixed lr=0.01 epochs=10",
+    "W": 0.9264,
+    "flagged": true
+  },
+  {
+    "account_id": "attacker_cvsearch",
+    "method": "CV-SEARCH lr=0.01 epochs=160",
+    "W": 0.9253,
+    "flagged": true
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "pure_sybil_n64": {
+    "prada_flagged": 0,
+    "prada_total": 64,
+    "prada_warmup": 64,
+    "js_detected": true,
+    "js_cluster_size": 64,
+    "js_within": 0.1107,
+    "js_cross": 0.2844,
+    "false_positive": false
+  },
+  "mixed_sybil_n64": {
+    "prada_flagged": 0,
+    "prada_total": 64,
+    "prada_warmup": 64,
+    "js_detected": true,
+    "js_cluster_size": 64,
+    "js_within": 0.1213,
+    "js_cross": 0.2695,
+    "false_positive": false
+  },
+  "benign_only": {
+    "prada_flagged": false,
+    "js_detected": false,
+    "false_positive": false
+  }
+}

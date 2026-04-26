@@ -130,6 +130,7 @@ if __name__ == "__main__":
     print(f"  {'Account':<15} {'Lambda':>10} {'W score':>10} {'Flagged'}")
     print("  " + "-"*50)
 
+    lambda_rows = []
     for account_id in PRADA_ACCOUNTS:
         records = [r for r in all_records if r["account_id"] == account_id]
 
@@ -148,11 +149,19 @@ if __name__ == "__main__":
 
         if len(D) < 100:
             print(f"  {account_id:<15} {'N/A':>10} {'warmup':>10}")
+            lambda_rows.append({"account_id": account_id, "lambda": LAMBDA_LABELS.get(account_id), "W": None, "flagged": False})
             continue
 
         W, _ = shapiro(D)
         flagged = W < DELTA
         status = "YES" if flagged else "NO"
         print(f"  {account_id:<15} {LAMBDA_LABELS[account_id]:>10} {W:>10.4f}  {status}")
+        lambda_rows.append({"account_id": account_id, "lambda": LAMBDA_LABELS.get(account_id), "W": float(W), "flagged": bool(flagged)})
 
     print("="*55)
+
+    import json
+    out_path = _ROOT / "analysis" / "results" / "lambda_sweep.json"
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(json.dumps(lambda_rows, indent=2), encoding="utf-8")
+    print(f"Saved → {out_path.relative_to(_ROOT)}")

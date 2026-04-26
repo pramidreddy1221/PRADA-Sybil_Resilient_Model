@@ -1,0 +1,38 @@
+[
+  {
+    "account_id": "mixed_010",
+    "normal_ratio": 0.1,
+    "W": 0.9256,
+    "flagged": true
+  },
+  {
+    "account_id": "mixed_020",
+    "normal_ratio": 0.2,
+    "W": 0.9344,
+    "flagged": true
+  },
+  {
+    "account_id": "mixed_030",
+    "normal_ratio": 0.3,
+    "W": 0.9201,
+    "flagged": true
+  },
+  {
+    "account_id": "mixed_050",
+    "normal_ratio": 0.5,
+    "W": 0.8936,
+    "flagged": true
+  },
+  {
+    "account_id": "mixed_070",
+    "normal_ratio": 0.7,
+    "W": 0.8576,
+    "flagged": true
+  },
+  {
+    "account_id": "mixed_090",
+    "normal_ratio": 0.9,
+    "W": 0.8219,
+    "flagged": true
+  }
+]

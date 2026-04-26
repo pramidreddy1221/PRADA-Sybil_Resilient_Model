@@ -1,0 +1,86 @@
+[
+  {
+    "account_id": "lambda_008",
+    "label": "8/255",
+    "W": 0.8575,
+    "flagged": true
+  },
+  {
+    "account_id": "lambda_016",
+    "label": "16/255",
+    "W": 0.8955,
+    "flagged": true
+  },
+  {
+    "account_id": "lambda_025",
+    "label": "25.5/255",
+    "W": 0.9203,
+    "flagged": true
+  },
+  {
+    "account_id": "lambda_032",
+    "label": "32/255",
+    "W": 0.9481,
+    "flagged": true
+  },
+  {
+    "account_id": "lambda_040",
+    "label": "40/255",
+    "W": 0.9475,
+    "flagged": true
+  },
+  {
+    "account_id": "lambda_048",
+    "label": "48/255",
+    "W": 0.9502,
+    "flagged": true
+  },
+  {
+    "account_id": "lambda_056",
+    "label": "56/255",
+    "W": 0.9436,
+    "flagged": true
+  },
+  {
+    "account_id": "lambda_064",
+    "label": "64/255",
+    "W": 0.9242,
+    "flagged": true
+  },
+  {
+    "account_id": "lambda_128",
+    "label": "128/255",
+    "W": 0.9133,
+    "flagged": true
+  },
+  {
+    "account_id": "attacker_fgsm",
+    "label": "FGSM",
+    "W": 0.9132,
+    "flagged": true
+  },
+  {
+    "account_id": "attacker_ifgsm",
+    "label": "I-FGSM",
+    "W": 0.9199,
+    "flagged": true
+  },
+  {
+    "account_id": "attacker_mifgsm",
+    "label": "MI-FGSM",
+    "W": 0.9163,
+    "flagged": true
+  },
+  {
+    "account_id": "attacker_001",
+    "label": "baseline",
+    "W": 0.9264,
+    "flagged": true
+  },
+  {
+    "account_id": "benign_001",
+    "label": "benign",
+    "W": 0.9864,
+    "flagged": false
+  }
+]

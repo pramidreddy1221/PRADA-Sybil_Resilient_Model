@@ -1,0 +1,30 @@
+[
+  {
+    "metric": "JS",
+    "within_mean": 0.11071214770025062,
+    "cross_mean": 0.28439080701106445,
+    "gap": 0.17367865931081383,
+    "separates": true
+  },
+  {
+    "metric": "KL",
+    "within_mean": 2.606582255265104,
+    "cross_mean": 4.368051023224673,
+    "gap": 1.761468767959569,
+    "separates": true
+  },
+  {
+    "metric": "Wasserstein",
+    "within_mean": 0.3258699576217435,
+    "cross_mean": 2.006339707561134,
+    "gap": 1.6804697499393904,
+    "separates": true
+  },
+  {
+    "metric": "Cosine",
+    "within_mean": 0.11406367030865397,
+    "cross_mean": 0.6280176795851433,
+    "gap": 0.5139540092764894,
+    "separates": true
+  }
+]

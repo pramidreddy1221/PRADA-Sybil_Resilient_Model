@@ -1,0 +1,11 @@
+{
+  "source_account": "mixed_sybil_source",
+  "n_sybil": 64,
+  "prada_flagged": 0,
+  "prada_warmup": 64,
+  "js_detected": true,
+  "js_cluster_size": 64,
+  "benign_fp": false,
+  "mean_js_within": 0.12127694487418249,
+  "mean_js_cross": 0.269483026210928
+}

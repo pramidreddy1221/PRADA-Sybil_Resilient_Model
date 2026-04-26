@@ -9,9 +9,10 @@ def compute_dmin_per_account(records: list[dict]) -> dict:
     results = {}
 
     for account_id, queries in by_account.items():
-        Gc = defaultdict(list)
-        Tc = defaultdict(float)
-        D = []
+        Gc  = defaultdict(list)
+        Tc  = defaultdict(float)
+        DGc = defaultdict(list)
+        D   = []
 
         for query in queries:
             if "input_vector" not in query:
@@ -31,16 +32,9 @@ def compute_dmin_per_account(records: list[dict]) -> dict:
             D.append(dmin)
 
             if dmin > Tc[c]:
+                DGc[c].append(dmin)
                 Gc[c].append(x_vec)
-                DGc = []
-                for i in range(len(Gc[c])):
-                    dists_i = [np.linalg.norm(Gc[c][i] - Gc[c][j])
-                               for j in range(len(Gc[c])) if i != j]
-                    if dists_i:
-                        DGc.append(min(dists_i))
-
-                if len(DGc) > 0:
-                    Tc[c] = max(Tc[c], np.mean(DGc) - np.std(DGc))
+                Tc[c] = max(Tc[c], np.mean(DGc[c]) - np.std(DGc[c]))
 
         results[account_id] = {
             "D": D,

@@ -11,19 +11,41 @@ Victim MNIST classifier → Papernot/JbDA attack → PRADA Shapiro-Wilk detectio
 Sybil extension via JS divergence cross-account detection.
 
 ## Key Config
-- DELTA = 0.95
+- DELTA = 0.96
 - MIN_QUERIES = 100
 - LAMBDA = 25.5/255
 - ROUNDS = 6
 - SEED_PER_CLASS = 10
-- SYBIL_JS_THRESHOLD = 0.20
+- SYBIL_JS_THRESHOLD = 0.15
 
 ## What's Already Built — Do Not Modify Without Asking
 - defense/prada.py — baseline PRADA, working
 - defense/sybil_detection.py — JS divergence detection, working
+- defense/distances.py — O(n) optimized, verified correct per paper
 - simulation/sybil.py — Sybil failure demonstration, working
 - simulation/mixed.py — mixed attack with configurable ratio, working
+- simulation/mixed_sybil_sweep.py — mixed + Sybil combined test
 - evaluate.py — full evaluation, verified
+- analysis/js_tradeoff.py — 6-table JS tradeoff analysis
+- analysis/warmup_tradeoff.py — MIN_QUERIES tradeoff analysis
+- analysis/metric_comparison.py — JS vs KL vs Wasserstein vs Cosine
+- analysis/mixed_ratio_results.py — mixed ratio W scores
+- analysis/generate_results.py — generates all JSON result files
+- analysis/results/ — 18 JSON files with all experiment results
+- cleanup/clean_log.py — trims log to first N records per account
+
+## Current State — Experiments Complete
+- Victim model: 99.08% test accuracy
+- PRADA baseline: attacker_001 W=0.9264 flagged, benign W=0.9864 clean
+- Sybil evasion proven: PRADA fails at N>=64 (warmup threshold)
+- JS extension: catches Sybil up to N=256, no FP up to N=128
+- Mixed Sybil: detected at all ratios (10%-90%), all N values
+- All 18 JSON result files in analysis/results/
+
+## Remaining Tasks
+- Generate 7 graphs → analysis/graphs/
+- Commit to GitHub
+- Viva preparation
 
 ## Workflow Orchestration
 - Enter plan mode for ANY non-trivial task (3+ steps or architectural decisions)

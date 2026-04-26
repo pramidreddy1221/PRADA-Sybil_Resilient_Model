@@ -1,0 +1,14 @@
+{
+  "architecture": "SimpleCNN",
+  "dataset": "MNIST",
+  "test_accuracy": 0.9908,
+  "test_accuracy_pct": 99.08,
+  "model_file": "victim/victim_model.pt",
+  "input_shape": [
+    1,
+    28,
+    28
+  ],
+  "num_classes": 10,
+  "notes": "Trained on MNIST training set, evaluated on 10000 test samples"
+}
