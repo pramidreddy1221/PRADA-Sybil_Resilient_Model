@@ -12,7 +12,9 @@
       "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python analysis/warmup_tradeoff.py)",
       "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python analysis/js_tradeoff.py)",
       "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python analysis/graphs.py)",
-      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/pip install matplotlib --quiet)"
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/pip install matplotlib --quiet)",
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python -)",
+      "Bash(PYTHONIOENCODING=utf-8 .venv/Scripts/python _strip_separators.py)"
     ],
     "additionalDirectories": [
       "c:\\Users\\mvpra\\OneDrive\\Desktop\\Pramid\\Documents\\TextBooks\\Master's Project\\Project",

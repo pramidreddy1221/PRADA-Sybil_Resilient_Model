@@ -52,12 +52,12 @@ def graph1():
     fig, ax = plt.subplots(figsize=(8, 5))
 
     styles = {
-        "attacker_001":    ("Papernot (fixed lr=0.01, 10 epochs)", "steelblue", "o"),
+        "attacker_001": ("Papernot (fixed lr=0.01, 10 epochs)", "steelblue", "o"),
         "attacker_cvsearch": ("CV-Search (lr=0.01, 160 epochs)",   "darkorange", "s"),
     }
     for key, (label, color, marker) in styles.items():
         rounds = [r["round"] for r in data[key]["rounds"]]
-        agr    = [r["agreement"] * 100 for r in data[key]["rounds"]]
+        agr = [r["agreement"] * 100 for r in data[key]["rounds"]]
         ax.plot(rounds, agr, marker=marker, color=color, linewidth=2,
                 markersize=7, label=label)
 
@@ -75,13 +75,13 @@ def graph1():
 # Graph 2 — Detection Rate vs Number of Sybil Accounts
 # ---------------------------------------------------------------------------
 def graph2():
-    prada    = load("prada_n_sweep.json")
-    js       = load("js_n_sweep.json")
+    prada = load("prada_n_sweep.json")
+    js = load("js_n_sweep.json")
     combined = load("combined_n_sweep.json")
 
-    N_vals      = [r["N"] for r in prada]
-    prada_dr    = [r["detection_pct"] for r in prada]
-    js_dr       = [100.0 if r["detected"] else 0.0 for r in js]
+    N_vals = [r["N"] for r in prada]
+    prada_dr = [r["detection_pct"] for r in prada]
+    js_dr = [100.0 if r["detected"] else 0.0 for r in js]
     combined_dr = [100.0 if r["combined"] else 0.0 for r in combined]
 
     fig, ax = plt.subplots(figsize=(9, 5))
@@ -105,7 +105,7 @@ def graph2():
 # ---------------------------------------------------------------------------
 def graph3():
     baseline = load("prada_baseline.json")
-    attack   = load("attack_sweep.json")
+    attack = load("attack_sweep.json")
 
     # Merge both files; attack_sweep wins on duplicates (more detail)
     accounts = {}
@@ -118,15 +118,15 @@ def graph3():
     sorted_items = sorted(accounts.items(), key=lambda x: (not x[1]["flagged"], x[0]))
 
     short = {
-        "attacker_001":     "att_001\n(baseline)",
+        "attacker_001": "att_001\n(baseline)",
         "attacker_cvsearch":"att_cvsearch",
-        "attacker_fgsm":    "att_fgsm",
-        "attacker_ifgsm":   "att_ifgsm",
-        "attacker_mifgsm":  "att_mifgsm",
-        "benign_001":       "benign_001",
+        "attacker_fgsm": "att_fgsm",
+        "attacker_ifgsm": "att_ifgsm",
+        "attacker_mifgsm": "att_mifgsm",
+        "benign_001": "benign_001",
     }
     labels = [short.get(k, k) for k, _ in sorted_items]
-    W      = [v["W"] for _, v in sorted_items]
+    W = [v["W"] for _, v in sorted_items]
     colors = ["crimson" if v["flagged"] else "seagreen" for _, v in sorted_items]
 
     fig, ax = plt.subplots(figsize=(10, 5))
@@ -158,9 +158,9 @@ def graph4():
     data = load("lambda_attack_results.json")
     lambda_rows = [r for r in data if r["account_id"].startswith("lambda_")]
 
-    labels  = [r["label"] for r in lambda_rows]
-    W       = [r["W"] for r in lambda_rows]
-    x       = range(len(labels))
+    labels = [r["label"] for r in lambda_rows]
+    W = [r["W"] for r in lambda_rows]
+    x = range(len(labels))
 
     fig, ax = plt.subplots(figsize=(9, 5))
     ax.plot(list(x), W, marker="o", color="steelblue", linewidth=2, markersize=7)
@@ -187,10 +187,10 @@ def graph4():
 def graph5():
     data = load("mixed_sybil_ratios.json")
 
-    ratios   = [int(r["ratio"] * 100) for r in data]
-    within   = [r["within_js"] for r in data]
-    cross    = [r["cross_js"]  for r in data]
-    gap      = [r["cross_js"] - r["within_js"] for r in data]
+    ratios = [int(r["ratio"] * 100) for r in data]
+    within = [r["within_js"] for r in data]
+    cross = [r["cross_js"]  for r in data]
+    gap = [r["cross_js"] - r["within_js"] for r in data]
 
     fig, ax = plt.subplots(figsize=(9, 5))
     ax.plot(ratios, within, marker="o", color="steelblue",  linewidth=2, markersize=7, label="Within-Sybil JS")
@@ -214,14 +214,14 @@ def graph5():
 def graph6():
     data = load("js_threshold_sweep.json")
 
-    pure  = sorted([r for r in data if r["source"] == "pure"],  key=lambda x: x["threshold"])
+    pure = sorted([r for r in data if r["source"] == "pure"],  key=lambda x: x["threshold"])
     mixed = sorted([r for r in data if r["source"] == "mixed"], key=lambda x: x["threshold"])
 
     thresholds = [r["threshold"] for r in pure]
-    pure_det   = [100 if r["detected"] else 0 for r in pure]
-    pure_fp    = [100 if r["FP"]       else 0 for r in pure]
-    mixed_det  = [100 if r["detected"] else 0 for r in mixed]
-    mixed_fp   = [100 if r["FP"]       else 0 for r in mixed]
+    pure_det = [100 if r["detected"] else 0 for r in pure]
+    pure_fp = [100 if r["FP"]       else 0 for r in pure]
+    mixed_det = [100 if r["detected"] else 0 for r in mixed]
+    mixed_fp = [100 if r["FP"]       else 0 for r in mixed]
 
     fig, ax = plt.subplots(figsize=(9, 5))
     ax.plot(thresholds, pure_det,  marker="o", color="steelblue",  linewidth=2, markersize=7,
@@ -251,10 +251,10 @@ def graph7():
     data = load("metric_comparison.json")
 
     metrics = [r["metric"]      for r in data]
-    within  = [r["within_mean"] for r in data]
-    cross   = [r["cross_mean"]  for r in data]
+    within = [r["within_mean"] for r in data]
+    cross = [r["cross_mean"]  for r in data]
 
-    x     = np.arange(len(metrics))
+    x = np.arange(len(metrics))
     width = 0.35
 
     fig, ax = plt.subplots(figsize=(9, 5))

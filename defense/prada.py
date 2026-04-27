@@ -5,27 +5,24 @@ from defense.detection import run_shapiro
 
 
 def run_prada_on_records(records: list, delta: float = DELTA) -> dict:
-    """Run PRADA on an in-memory list of query records. Returns per-account results."""
     account_dmin_data = compute_dmin_per_account(records)
     results = {}
     for acct, data in account_dmin_data.items():
         sh = run_shapiro(data["D"], delta)
         results[acct] = {
-            "n_queries":   data["n_queries"],
+            "n_queries": data["n_queries"],
             "n_distances": len(data["D"]),
-            "W":           sh["W"],
-            "p_value":     sh["p_value"],
-            "flagged":     sh["flagged"],
-            "reason":      sh["reason"],
+            "W": sh["W"],
+            "p_value": sh["p_value"],
+            "flagged": sh["flagged"],
+            "reason": sh["reason"],
         }
     return results
 
 
 def run_prada(delta: float = DELTA, log_path=LOG_PATH) -> dict:
-    print("=" * 50)
     print("PRADA Detection (Algorithm 3)")
     print(f"δ threshold: {delta}")
-    print("=" * 50)
 
     records = load_logs(log_path)
     print(f"\nLoaded {len(records)} query records")
@@ -36,7 +33,6 @@ def run_prada(delta: float = DELTA, log_path=LOG_PATH) -> dict:
 
     print(f"\n{'Account':<20} {'Queries':<10} {'Distances':<12} {'W':<8} {'Flagged'}")
     print("-" * 60)
-
     for account_id, data in account_results.items():
         D = data["D"]
         n_queries = data["n_queries"]

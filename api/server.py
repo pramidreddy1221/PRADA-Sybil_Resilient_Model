@@ -77,19 +77,15 @@ async def upload(file: UploadFile = File(...), account_id: str = "manual_user"):
 
 @app.post("/predict", response_model=PredictResponse)
 def predict(req: PredictRequest):
+    img = validate_image(req.image)
+    x = img.reshape(1, 1, 28, 28)
 
-    # 1. Validate input
-    img = validate_image(req.image)                    # (28,28)
-    x = img.reshape(1, 1, 28, 28)                     # (1,1,28,28)
-
-    # 2. Inference
     xt = torch.from_numpy(x).to(device)
     with torch.no_grad():
         logits = model(xt)
         probs = torch.softmax(logits, dim=1).cpu().numpy()[0]
         pred = int(np.argmax(probs))
 
-    # 3. Log
     log_query({
         "timestamp": time.time(),
         "account_id": req.account_id,
@@ -99,5 +95,4 @@ def predict(req: PredictRequest):
         "probs": probs.tolist()
     })
 
-    # 4. Return
     return PredictResponse(pred=pred, probs=probs.tolist())

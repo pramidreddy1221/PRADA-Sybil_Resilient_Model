@@ -1,20 +1,3 @@
-"""
-simulation/mixed_sybil_sweep.py — Mixed Attack + Sybil Split Detection Test
-
-Tests whether the mixed-strategy attacker (30% normal / 70% synthetic) still
-produces a detectable coordinated pattern when its queries are redistributed
-across N=64 Sybil accounts.
-
-Question: does diluting the attack with normal images (to fool PRADA's
-Shapiro-Wilk test) also fool the JS divergence cross-account detector?
-
-Scenario:
-  1. Run a fresh mixed attack as "mixed_sybil_source" — requires server.
-  2. Redistribute those records across N=64 Sybil accounts (round-robin).
-  3. Mix in benign_001 to check false-positive rate.
-  4. Run PRADA (per-account) and JS divergence (cross-account) on the result.
-"""
-
 import sys
 from pathlib import Path
 
@@ -28,21 +11,16 @@ from defense.sybil_detection   import run_sybil_detection
 from defense.logs              import load_logs
 from config                    import LOG_PATH
 
-N_SYBIL        = 64
+N_SYBIL = 64
 SOURCE_ACCOUNT = "mixed_sybil_source"
 BENIGN_ACCOUNT = "benign_001"
-MIXED_RATIO    = 0.30
+MIXED_RATIO = 0.30
 
 
 def main() -> None:
-    print("=" * 60)
     print("Mixed Sybil Sweep")
     print(f"  ratio={MIXED_RATIO}  N={N_SYBIL} Sybil accounts")
-    print("=" * 60)
 
-    # ------------------------------------------------------------------
-    # Step 1: Run mixed attack against victim API (server must be running)
-    # ------------------------------------------------------------------
     existing = {r["account_id"] for r in load_logs(LOG_PATH)}
     if SOURCE_ACCOUNT not in existing:
         print(f"\n[Step 1] Running mixed attack as '{SOURCE_ACCOUNT}'...")
@@ -50,11 +28,8 @@ def main() -> None:
     else:
         print(f"\n[Step 1] Skipping attack — {SOURCE_ACCOUNT} already in log")
 
-    # ------------------------------------------------------------------
-    # Step 2: Load records produced by this attack + existing benign log
-    # ------------------------------------------------------------------
     print(f"\n[Step 2] Loading records from log...")
-    all_records    = load_logs(LOG_PATH)
+    all_records = load_logs(LOG_PATH)
     source_records = [r for r in all_records if r["account_id"] == SOURCE_ACCOUNT][:6400]
     benign_records = [r for r in all_records if r["account_id"] == BENIGN_ACCOUNT][:3000]
 
@@ -65,17 +40,11 @@ def main() -> None:
         print(f"\n[ERROR] No records for '{SOURCE_ACCOUNT}'. Did the attack reach the server?")
         sys.exit(1)
 
-    # ------------------------------------------------------------------
-    # Step 3: Redistribute source records across N=64 Sybil accounts
-    # ------------------------------------------------------------------
     print(f"\n[Step 3] Redistributing across {N_SYBIL} Sybil accounts (round-robin)...")
     sybil_records = redistribute_queries(source_records, N_SYBIL)
-    per_account   = len(source_records) // N_SYBIL
+    per_account = len(source_records) // N_SYBIL
     print(f"  ~{per_account} queries/account")
 
-    # ------------------------------------------------------------------
-    # Step 4: Build mixed dataset — 64 Sybil accounts + benign_001
-    # ------------------------------------------------------------------
     if benign_records:
         mixed_records = sybil_records + benign_records
         print(f"\n[Step 4] Mixed dataset: {N_SYBIL} Sybil + '{BENIGN_ACCOUNT}'")
@@ -83,38 +52,26 @@ def main() -> None:
         mixed_records = sybil_records
         print(f"\n[Step 4] '{BENIGN_ACCOUNT}' not in log — running Sybil-only (no FP check)")
 
-    # ------------------------------------------------------------------
-    # Step 5a: PRADA — per-account Shapiro-Wilk test
-    # ------------------------------------------------------------------
     print(f"\n[Step 5a] PRADA per-account detection...")
     prada_results = run_prada_on_records(mixed_records)
 
-    sybil_accts  = sorted(a for a in prada_results if a.startswith("sybil_"))
+    sybil_accts = sorted(a for a in prada_results if a.startswith("sybil_"))
     benign_accts = sorted(a for a in prada_results if not a.startswith("sybil_"))
 
-    n_sybil_flagged  = sum(1 for a in sybil_accts  if prada_results[a]["flagged"])
-    n_sybil_warmup   = sum(1 for a in sybil_accts  if prada_results[a]["W"] is None)
+    n_sybil_flagged = sum(1 for a in sybil_accts  if prada_results[a]["flagged"])
+    n_sybil_warmup = sum(1 for a in sybil_accts  if prada_results[a]["W"] is None)
     n_benign_flagged = sum(1 for a in benign_accts if prada_results[a]["flagged"])
 
-    # ------------------------------------------------------------------
-    # Step 5b: JS divergence — cross-account Sybil detection
-    # ------------------------------------------------------------------
     print(f"\n[Step 5b] JS divergence cross-account detection...")
     sd = run_sybil_detection(mixed_records, verbose=False)
 
-    sybil_in_cluster  = [a for a in sd["flagged_accounts"] if a.startswith("sybil_")]
+    sybil_in_cluster = [a for a in sd["flagged_accounts"] if a.startswith("sybil_")]
     benign_in_cluster = [a for a in sd["flagged_accounts"] if not a.startswith("sybil_")]
 
-    # False positive = benign caught by either detector
     benign_fp = bool(benign_in_cluster) or bool(n_benign_flagged)
 
-    # ------------------------------------------------------------------
-    # Results
-    # ------------------------------------------------------------------
     print()
-    print("=" * 60)
     print("RESULTS")
-    print("=" * 60)
 
     warmup_note = f"  ({n_sybil_warmup} in warmup — below MIN_QUERIES)" if n_sybil_warmup else ""
     print(f"PRADA:        {n_sybil_flagged}/{N_SYBIL} accounts flagged{warmup_note}")

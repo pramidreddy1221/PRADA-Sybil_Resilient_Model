@@ -4,16 +4,10 @@ from torchvision import datasets, transforms
 from config import MNIST_PATH
 
 def get_seed_samples(n_per_class: int = 10):
-    """
-    Load n_per_class samples for each digit (0-9).
-    Returns:
-        images: np.ndarray of shape (N, 28, 28) float32
-        labels: list of int (true MNIST labels, NOT victim labels)
-    """
     dataset = datasets.MNIST(
         root=str(MNIST_PATH),
         train=False,
-        download=False,      # already downloaded
+        download=False,
         transform=transforms.ToTensor()
     )
 
@@ -21,7 +15,7 @@ def get_seed_samples(n_per_class: int = 10):
 
     for img, label in dataset:
         if len(images_by_class[label]) < n_per_class:
-            images_by_class[label].append(img.numpy().squeeze())  # (28,28)
+            images_by_class[label].append(img.numpy().squeeze())
         if all(len(v) == n_per_class for v in images_by_class.values()):
             break
 

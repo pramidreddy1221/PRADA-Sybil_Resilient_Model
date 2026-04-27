@@ -6,19 +6,8 @@ _session = requests.Session()
 
 
 def query_victim(images, account_id: str = "attacker_001"):
-    """
-    Send images to victim API one by one, collect predicted labels.
-
-    Args:
-        images: np.ndarray of shape (N, 28, 28) float32
-        account_id: simulated attacker account
-
-    Returns:
-        labels: list of int (victim's predicted class for each image)
-        probs:  list of list (victim's predicted probabilities)
-    """
     labels = []
-    probs  = []
+    probs = []
 
     for i, img in enumerate(images):
         payload = {
