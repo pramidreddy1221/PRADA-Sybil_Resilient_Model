@@ -1,15 +1,3 @@
-"""
-simulation/lambda_sweep.py — FGSM Lambda Sweep
-
-Runs nine full 6-round Papernot/JbDA attacks, one per lambda value.
-Everything is identical to the baseline attack except the FGSM step size.
-
-Lambdas tested: 8/255, 16/255, 25.5/255, 32/255, 40/255, 48/255, 56/255, 64/255, 128/255
-
-Run with (server must be up at 127.0.0.1:8010):
-  PYTHONIOENCODING=utf-8 .venv/Scripts/python simulation/lambda_sweep.py
-"""
-
 from __future__ import annotations
 
 import sys
@@ -65,20 +53,12 @@ LAMBDA_LABELS = {
 }
 
 
-# ---------------------------------------------------------------------------
-# Attack runner — identical to baseline except LAMBDA is patched per call
-# ---------------------------------------------------------------------------
-
 def run_papernot_attack(account_id: str, lam: float) -> None:
-    """Full 6-round JbDA/FGSM attack with the given lambda."""
-    # Patch the module-level LAMBDA so jacobian_augment uses this value
     _augment_mod.LAMBDA = lam
 
     substitute = SubstituteCNN().to(DEVICE)
 
-    print(f"\n{'='*60}")
-    print(f"  Account: {account_id}  |  lambda: {lam:.4f}  ({lam*255:.1f}/255)")
-    print(f"{'='*60}")
+    print(f"\n  Account: {account_id}  |  lambda: {lam:.4f}  ({lam*255:.1f}/255)")
 
     print("[Phase 1] Loading seed samples...")
     seed_images, _ = get_seed_samples(SEED_PER_CLASS)
@@ -95,7 +75,7 @@ def run_papernot_attack(account_id: str, lam: float) -> None:
         print(f"  Dataset size: {len(all_images)} samples")
 
         substitute = train_substitute(substitute, all_images, all_labels)
-        agreement  = evaluate_substitute(substitute, all_images, all_labels)
+        agreement = evaluate_substitute(substitute, all_images, all_labels)
         print(f"  Agreement: {agreement*100:.2f}%")
 
         synthetic_images = jacobian_augment(substitute, all_images, all_labels)
@@ -109,10 +89,6 @@ def run_papernot_attack(account_id: str, lam: float) -> None:
     print(f"\n[Done] {account_id} complete — total images: {len(all_images)}")
 
 
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
-
 if __name__ == "__main__":
     existing_accounts = {r["account_id"] for r in load_logs(LOG_PATH)}
 
@@ -124,12 +100,9 @@ if __name__ == "__main__":
 
     all_records = load_logs(LOG_PATH)
 
-    print("\n" + "="*55)
-    print("  PRADA Detection — Lambda Sweep")
-    print("="*55)
+    print("\n  PRADA Detection — Lambda Sweep")
     print(f"  {'Account':<15} {'Lambda':>10} {'W score':>10} {'Flagged'}")
-    print("  " + "-"*50)
-
+    print("  " + "-" * 50)
     lambda_rows = []
     for account_id in PRADA_ACCOUNTS:
         records = [r for r in all_records if r["account_id"] == account_id]
@@ -157,8 +130,6 @@ if __name__ == "__main__":
         status = "YES" if flagged else "NO"
         print(f"  {account_id:<15} {LAMBDA_LABELS[account_id]:>10} {W:>10.4f}  {status}")
         lambda_rows.append({"account_id": account_id, "lambda": LAMBDA_LABELS.get(account_id), "W": float(W), "flagged": bool(flagged)})
-
-    print("="*55)
 
     import json
     out_path = _ROOT / "analysis" / "results" / "lambda_sweep.json"

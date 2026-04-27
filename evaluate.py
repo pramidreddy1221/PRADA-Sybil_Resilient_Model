@@ -1,19 +1,3 @@
-"""
-evaluate.py — End-to-end evaluation of PRADA + Sybil detection.
-
-Scenarios:
-  0. Baseline (N=1): single attacker_001       → PRADA flags
-  1. Sybil N=2                                 → PRADA flags (enough queries)
-  2. Sybil N=5                                 → PRADA flags
-  3. Sybil N=10                                → PRADA partially flags
-  4. Sybil N=64                                → PRADA blind (warmup); Sybil detection flags
-  5. Benign only (benign_001)                  → neither system flags
-  6. Mixed: N=64 Sybil + benign_001            → Sybil cluster flagged; benign NOT flagged
-
-Run with:
-  PYTHONIOENCODING=utf-8 .venv/Scripts/python evaluate.py
-"""
-
 import sys
 from pathlib import Path
 
@@ -29,27 +13,19 @@ from config import LOG_PATH, SYBIL_MIN_DMIN
 
 
 def prada_summary(prada_results: dict, prefix: str = "") -> tuple:
-    """Return (n_flagged, n_warmup, label_str) from a PRADA result dict."""
     accounts = [a for a in prada_results if a.startswith(prefix)] if prefix else list(prada_results.keys())
     n_flagged = sum(1 for a in accounts if prada_results[a]["flagged"])
-    n_warmup  = sum(1 for a in accounts if prada_results[a]["W"] is None)
+    n_warmup = sum(1 for a in accounts if prada_results[a]["W"] is None)
     return n_flagged, n_warmup, accounts
 
 
-# ---------------------------------------------------------------------------
-# Main evaluation
-# ---------------------------------------------------------------------------
-
 def evaluate():
-    print("=" * 72)
     print("  COMBINED EVALUATION: PRADA + Sybil Detection")
     print("  Extending PRADA for Sybil-Resilient Model Extraction Detection")
-    print("=" * 72)
 
-    # Load ground-truth logs
-    all_records      = load_logs(LOG_PATH)
+    all_records = load_logs(LOG_PATH)
     attacker_records = [r for r in all_records if r["account_id"] == "attacker_001"][:6400]
-    benign_records   = [r for r in all_records if r["account_id"] == "benign_001"][:3000]
+    benign_records = [r for r in all_records if r["account_id"] == "benign_001"][:3000]
 
     print(f"\nLog: {LOG_PATH.name}")
     print(f"  attacker_001 : {len(attacker_records):>5} queries")
@@ -57,9 +33,6 @@ def evaluate():
 
     summary_rows = []
 
-    # -------------------------------------------------------------------
-    # SCENARIO 0: Baseline — single attacker
-    # -------------------------------------------------------------------
     _section("SCENARIO 0: Baseline — single attacker_001 (N=1)")
 
     prada_res = run_prada_on_records(attacker_records)
@@ -70,15 +43,11 @@ def evaluate():
     combined_detected = r0["flagged"]
     summary_rows.append(_row("N=1 baseline", prada_str, "N/A", combined_detected, is_attack=True))
 
-    # -------------------------------------------------------------------
-    # SCENARIOS 1–4: Sybil splits
-    # -------------------------------------------------------------------
     for N in [2, 5, 10, 64]:
         _section(f"SCENARIO: Sybil N={N}  (~{len(attacker_records)//N} queries/account)")
 
         sybil_records = redistribute_queries(attacker_records, N)
 
-        # PRADA
         prada_res = run_prada_on_records(sybil_records)
         n_prada_flagged, n_warmup, _ = prada_summary(prada_res)
         prada_str = (
@@ -87,7 +56,6 @@ def evaluate():
         )
         print(f"  PRADA        : {prada_str}")
 
-        # Sybil detection
         print(f"  Sybil detect :")
         sd_res = run_sybil_detection(sybil_records, verbose=True)
 
@@ -100,9 +68,6 @@ def evaluate():
         combined_detected = (n_prada_flagged > 0) or sd_res["sybil_detected"]
         summary_rows.append(_row(f"N={N} Sybil", prada_str, sybil_str, combined_detected, is_attack=True))
 
-    # -------------------------------------------------------------------
-    # SCENARIO: Benign only
-    # -------------------------------------------------------------------
     _section("SCENARIO: Benign only — benign_001")
 
     prada_res = run_prada_on_records(benign_records)
@@ -118,22 +83,18 @@ def evaluate():
     combined_fp = bool(n_b_flagged) or sd_benign["sybil_detected"]
     summary_rows.append(_row("Benign only", prada_str, sybil_str, not combined_fp, is_attack=False))
 
-    # -------------------------------------------------------------------
-    # SCENARIO: Mixed traffic — N=64 Sybil + benign_001
-    # -------------------------------------------------------------------
     _section("SCENARIO: Mixed traffic — N=64 Sybil + benign_001")
 
-    sybil_64      = redistribute_queries(attacker_records, 64)
+    sybil_64 = redistribute_queries(attacker_records, 64)
     mixed_records = sybil_64 + benign_records
 
-    # PRADA on mixed
     prada_mixed = run_prada_on_records(mixed_records)
-    sybil_accts  = [a for a in prada_mixed if a.startswith("sybil_")]
+    sybil_accts = [a for a in prada_mixed if a.startswith("sybil_")]
     benign_accts = [a for a in prada_mixed if not a.startswith("sybil_")]
 
     n_sybil_prada = sum(1 for a in sybil_accts  if prada_mixed[a]["flagged"])
-    n_benign_prada= sum(1 for a in benign_accts if prada_mixed[a]["flagged"])
-    n_sybil_warmup= sum(1 for a in sybil_accts  if prada_mixed[a]["W"] is None)
+    n_benign_prada = sum(1 for a in benign_accts if prada_mixed[a]["flagged"])
+    n_sybil_warmup = sum(1 for a in sybil_accts  if prada_mixed[a]["W"] is None)
 
     print(f"  PRADA        : Sybil {n_sybil_prada}/64 flagged ({n_sybil_warmup} warmup), "
           f"Benign {n_benign_prada}/1 flagged")
@@ -141,7 +102,7 @@ def evaluate():
     print(f"  Sybil detect :")
     sd_mixed = run_sybil_detection(mixed_records, verbose=True)
 
-    sybil_in_cluster  = [a for a in sd_mixed["flagged_accounts"] if a.startswith("sybil_")]
+    sybil_in_cluster = [a for a in sd_mixed["flagged_accounts"] if a.startswith("sybil_")]
     benign_in_cluster = [a for a in sd_mixed["flagged_accounts"] if not a.startswith("sybil_")]
 
     print(f"\n  Mixed scenario breakdown:")
@@ -161,35 +122,21 @@ def evaluate():
         fp_note=("FP!" if false_positive else "no FP"),
     ))
 
-    # -------------------------------------------------------------------
-    # JS diagnostics — show actual divergence values to justify threshold
-    # -------------------------------------------------------------------
     _js_diagnostics(attacker_records, benign_records)
 
-    # -------------------------------------------------------------------
-    # Final summary table
-    # -------------------------------------------------------------------
     _print_summary(summary_rows)
 
-    print("\n[Done] Evaluation complete.")
+    print("\n Evaluation complete.")
     return summary_rows
 
 
-# ---------------------------------------------------------------------------
-# JS threshold diagnostics
-# ---------------------------------------------------------------------------
-
 def _js_diagnostics(attacker_records: list, benign_records: list):
-    """
-    Show the actual JS divergence values for N=64 Sybil accounts and
-    benign_001, so the threshold choice (0.30) can be empirically justified.
-    """
     import numpy as np
 
     _section("JS DIVERGENCE DIAGNOSTICS — threshold justification")
 
     sybil_64 = redistribute_queries(attacker_records, 64)
-    mixed    = sybil_64 + benign_records
+    mixed = sybil_64 + benign_records
 
     from defense.distances import compute_dmin_per_account
     account_dmin = compute_dmin_per_account(mixed)
@@ -198,12 +145,10 @@ def _js_diagnostics(attacker_records: list, benign_records: list):
     histograms = build_histograms(eligible)
     accounts, js_matrix = compute_pairwise_js(histograms)
 
-    sybil_idx  = [i for i, a in enumerate(accounts) if a.startswith("sybil_")]
+    sybil_idx = [i for i, a in enumerate(accounts) if a.startswith("sybil_")]
     benign_idx = [i for i, a in enumerate(accounts) if not a.startswith("sybil_")]
 
-    # Within-Sybil JS (should be very low)
     within_sybil = [js_matrix[i, j] for i in sybil_idx for j in sybil_idx if i < j]
-    # Sybil vs benign JS (should be high)
     cross_js = [js_matrix[i, j] for i in sybil_idx for j in benign_idx]
 
     print(f"  Within-Sybil JS  (N=64 pairs) : "
@@ -232,33 +177,24 @@ def _js_diagnostics(attacker_records: list, benign_records: list):
           f"{'YES — clean separation' if threshold_ok else 'NO — OVERLAP, tighten threshold'}")
 
 
-# ---------------------------------------------------------------------------
-# Formatting helpers
-# ---------------------------------------------------------------------------
-
 def _section(title: str):
-    print(f"\n{'─'*72}")
-    print(f"  {title}")
-    print(f"{'─'*72}")
+    print(f"\n  {title}")
 
 
 def _row(scenario, prada_str, sybil_str, detected, is_attack, fp_note=""):
     return {
-        "scenario":  scenario,
-        "prada":     prada_str.strip(),
-        "sybil":     sybil_str.strip(),
-        "combined":  "YES" if detected else "NO",
+        "scenario": scenario,
+        "prada": prada_str.strip(),
+        "sybil": sybil_str.strip(),
+        "combined": "YES" if detected else "NO",
         "is_attack": is_attack,
-        "fp_note":   fp_note,
+        "fp_note": fp_note,
     }
 
 
 def _print_summary(rows: list):
-    print("\n\n" + "=" * 72)
-    print("  FINAL RESULTS TABLE")
-    print("=" * 72)
+    print("\n\n  FINAL RESULTS TABLE")
     print(f"  {'Scenario':<18} {'PRADA':<30} {'Sybil Detection':<28} {'Combined'}")
-    print("  " + "─" * 88)
 
     for row in rows:
         combined = row["combined"]
@@ -266,8 +202,6 @@ def _print_summary(rows: list):
             combined = f"No FP {'✓' if combined=='YES' else '✗'}"
         fp = f"  [{row['fp_note']}]" if row.get("fp_note") else ""
         print(f"  {row['scenario']:<18} {row['prada']:<30} {row['sybil']:<28} {combined}{fp}")
-
-    print("=" * 72)
 
     print("\n  Key findings:")
     attack_rows = [r for r in rows if r["is_attack"]]
@@ -287,10 +221,6 @@ def _print_summary(rows: list):
     else:
         print(f"\n  {len(missed)} scenario(s) missed detection.")
 
-
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
     evaluate()

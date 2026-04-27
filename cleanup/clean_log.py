@@ -1,22 +1,14 @@
-"""
-cleanup/clean_log.py — Trim query log to per-account limits.
-
-Reads logs/queries.jsonl, keeps the first N records per account
-(6400 for attackers, 3000 for benign_001), and writes the result
-to logs/queries_clean.jsonl. Original log is not modified.
-"""
-
 import json
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-LOG_IN  = ROOT / "logs" / "queries.jsonl"
+LOG_IN = ROOT / "logs" / "queries.jsonl"
 LOG_OUT = ROOT / "logs" / "queries_clean.jsonl"
 
 BENIGN_ACCOUNT = "benign_001"
-BENIGN_LIMIT   = 3000
-DEFAULT_LIMIT  = 6400
+BENIGN_LIMIT = 3000
+DEFAULT_LIMIT = 6400
 
 
 def limit_for(account_id: str) -> int:
@@ -38,7 +30,7 @@ if __name__ == "__main__":
                 continue
             rec = json.loads(line)
             aid = rec["account_id"]
-            n   = counts.get(aid, 0)
+            n = counts.get(aid, 0)
             if n < limit_for(aid):
                 kept.append(line)
                 counts[aid] = n + 1
@@ -52,7 +44,6 @@ if __name__ == "__main__":
     print("  " + "-" * 38)
     for aid, n in sorted(counts.items()):
         print(f"  {aid:<22} {n:>6}  {limit_for(aid):>6}")
-    print("  " + "-" * 38)
     print(f"  {'TOTAL':<22} {sum(counts.values()):>6}")
     print()
     print("Original log unchanged.")

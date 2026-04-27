@@ -1,23 +1,3 @@
-"""
-simulation/attack_sweep.py — FGSM / I-FGSM / MI-FGSM Attack Sweep
-
-Runs three full 6-round Papernot (JbDA) attacks back-to-back, each using a
-different augmentation function, then evaluates all accounts with PRADA and
-prints a comparison table.
-
-Accounts used:
-  attacker_fgsm   — standard single-step FGSM  (jacobian_augment)
-  attacker_ifgsm  — iterative FGSM              (jacobian_augment_ifgsm)
-  attacker_mifgsm — momentum iterative FGSM     (jacobian_augment_mifgsm)
-
-Pre-existing accounts (shown for reference):
-  attacker_001    — original baseline attacker
-  benign_001      — legitimate user
-
-Run with (server must be up at 127.0.0.1:8010):
-  PYTHONIOENCODING=utf-8 .venv/Scripts/python simulation/attack_sweep.py
-"""
-
 from __future__ import annotations
 
 import sys
@@ -45,17 +25,10 @@ from defense.logs  import load_logs
 from config        import LOG_PATH
 
 
-# ---------------------------------------------------------------------------
-# Reusable attack runner
-# ---------------------------------------------------------------------------
-
 def run_papernot_attack(account_id: str, augment_fn) -> None:
-    """Run a full 6-round Papernot/JbDA attack with the given augment function."""
     substitute = SubstituteCNN().to(DEVICE)
 
-    print(f"\n{'='*60}")
-    print(f"  Attack: {account_id}  |  augment: {augment_fn.__name__}")
-    print(f"{'='*60}")
+    print(f"\n  Attack: {account_id}  |  augment: {augment_fn.__name__}")
 
     print("[Phase 1] Loading seed samples...")
     seed_images, _ = get_seed_samples(SEED_PER_CLASS)
@@ -72,7 +45,7 @@ def run_papernot_attack(account_id: str, augment_fn) -> None:
         print(f"  Dataset size: {len(all_images)} samples")
 
         substitute = train_substitute(substitute, all_images, all_labels)
-        agreement  = evaluate_substitute(substitute, all_images, all_labels)
+        agreement = evaluate_substitute(substitute, all_images, all_labels)
         print(f"  Agreement: {agreement*100:.2f}%")
 
         synthetic_images = augment_fn(substitute, all_images, all_labels)
@@ -86,10 +59,6 @@ def run_papernot_attack(account_id: str, augment_fn) -> None:
     print(f"\n[Done] {account_id} complete — total images: {len(all_images)}")
 
 
-# ---------------------------------------------------------------------------
-# PRADA results table
-# ---------------------------------------------------------------------------
-
 DISPLAY_ORDER = [
     "attacker_001",
     "attacker_fgsm",
@@ -100,27 +69,19 @@ DISPLAY_ORDER = [
 
 
 def print_prada_table(prada_results: dict) -> None:
-    print(f"\n\n{'='*50}")
-    print("  PRADA Detection — Attack Sweep")
-    print(f"{'='*50}")
+    print("\n\n  PRADA Detection — Attack Sweep")
     print(f"  {'Account':<20} {'W score':<12} {'Flagged'}")
     print("  " + "-" * 38)
-
     for acct in DISPLAY_ORDER:
         if acct not in prada_results:
             print(f"  {acct:<20} {'N/A':<12} N/A (no queries)")
             continue
         r = prada_results[acct]
-        w_str      = f"{r['W']:.4f}" if r["W"] is not None else "N/A (warmup)"
+        w_str = f"{r['W']:.4f}" if r["W"] is not None else "N/A (warmup)"
         flagged_str = "YES" if r["flagged"] else "NO"
         print(f"  {acct:<20} {w_str:<12} {flagged_str}")
 
-    print(f"{'='*50}")
 
-
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
     attacks = [
@@ -137,7 +98,6 @@ if __name__ == "__main__":
             continue
         run_papernot_attack(account_id, augment_fn)
 
-    # Load all logs and filter to the accounts we want to compare
     print("\n\n[PRADA] Loading query logs...")
     all_records = load_logs(LOG_PATH)
     sweep_records = [r for r in all_records if r["account_id"] in DISPLAY_ORDER]

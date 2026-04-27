@@ -1,9 +1,3 @@
-"""
-analysis/generate_results.py — Compute and save all missing JSON result files.
-
-Skips any file that already exists. No server needed.
-"""
-
 import json
 import sys
 import warnings
@@ -24,15 +18,13 @@ from config import (
     SYBIL_JS_THRESHOLD, SYBIL_MIN_CLUSTER, SYBIL_MIN_DMIN,
 )
 
-RESULTS_DIR    = ROOT / "analysis" / "results"
+RESULTS_DIR = ROOT / "analysis" / "results"
 ATTACKER_LIMIT = 6400
-BENIGN_LIMIT   = 3000
-N_SWEEP        = [4, 8, 16, 32, 56, 64, 128, 192, 256]
-THRESH_SWEEP   = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30]
-N_FIXED        = 64
+BENIGN_LIMIT = 3000
+N_SWEEP = [4, 8, 16, 32, 56, 64, 128, 192, 256]
+THRESH_SWEEP = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30]
+N_FIXED = 64
 
-
-# ── Helpers ───────────────────────────────────────────────────────────────────
 
 def save(path: Path, data) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -41,17 +33,16 @@ def save(path: Path, data) -> None:
 
 
 def js_stats(result: dict) -> tuple:
-    """(within_js, cross_js) from a run_sybil_detection result."""
     if result["js_matrix"] is None:
         return None, None
     accounts = result["accounts"]
-    mat      = result["js_matrix"]
-    sybil_idx  = [i for i, a in enumerate(accounts) if     a.startswith("sybil_")]
+    mat = result["js_matrix"]
+    sybil_idx = [i for i, a in enumerate(accounts) if     a.startswith("sybil_")]
     benign_idx = [i for i, a in enumerate(accounts) if not a.startswith("sybil_")]
     within = [mat[i, j] for i in sybil_idx for j in sybil_idx if i < j]
-    cross  = [mat[i, j] for i in sybil_idx for j in benign_idx]
+    cross = [mat[i, j] for i in sybil_idx for j in benign_idx]
     within_js = float(np.mean(within)) if within else None
-    cross_js  = float(np.mean(cross))  if cross  else None
+    cross_js = float(np.mean(cross))  if cross  else None
     return within_js, cross_js
 
 
@@ -69,12 +60,10 @@ def load_data():
     all_records = load_logs(LOG_PATH)
     attacker = [r for r in all_records if r["account_id"] == "attacker_001"][:ATTACKER_LIMIT]
     cvsearch = [r for r in all_records if r["account_id"] == "attacker_cvsearch"][:ATTACKER_LIMIT]
-    mixed    = [r for r in all_records if r["account_id"] == "mixed_sybil_source"][:ATTACKER_LIMIT]
-    benign   = [r for r in all_records if r["account_id"] == "benign_001"][:BENIGN_LIMIT]
+    mixed = [r for r in all_records if r["account_id"] == "mixed_sybil_source"][:ATTACKER_LIMIT]
+    benign = [r for r in all_records if r["account_id"] == "benign_001"][:BENIGN_LIMIT]
     return attacker, cvsearch, mixed, benign
 
-
-# ── 1. prada_baseline.json ────────────────────────────────────────────────────
 
 def gen_prada_baseline(attacker, cvsearch, benign, out_path):
     if out_path.exists():
@@ -90,28 +79,24 @@ def gen_prada_baseline(attacker, cvsearch, benign, out_path):
     save(out_path, rows)
 
 
-# ── 2. prada_n_sweep.json ─────────────────────────────────────────────────────
-
 def gen_prada_n_sweep(attacker, out_path):
     if out_path.exists():
         print(f"  Skip (exists): {out_path.name}")
         return
     rows = []
     for N in N_SWEEP:
-        recs          = redistribute_queries(attacker, N)
-        prada         = run_prada_on_records(recs, DELTA)
+        recs = redistribute_queries(attacker, N)
+        prada = run_prada_on_records(recs, DELTA)
         flagged_count = sum(1 for r in prada.values() if r["flagged"])
-        warmup_count  = sum(1 for r in prada.values() if r["W"] is None)
+        warmup_count = sum(1 for r in prada.values() if r["W"] is None)
         rows.append({
             "N": N, "qpa": ATTACKER_LIMIT // N,
             "flagged_count": flagged_count,
-            "warmup_count":  warmup_count,
+            "warmup_count": warmup_count,
             "detection_pct": flagged_count / N * 100,
         })
     save(out_path, rows)
 
-
-# ── 3. js_n_sweep.json ────────────────────────────────────────────────────────
 
 def gen_js_n_sweep(attacker, benign, out_path):
     if out_path.exists():
@@ -119,21 +104,19 @@ def gen_js_n_sweep(attacker, benign, out_path):
         return
     rows = []
     for N in N_SWEEP:
-        recs     = redistribute_queries(attacker, N)
-        result   = sybil_detect(recs + benign)
+        recs = redistribute_queries(attacker, N)
+        result = sybil_detect(recs + benign)
         wjs, cjs = js_stats(result)
-        gap      = (cjs - wjs) if (wjs is not None and cjs is not None) else None
+        gap = (cjs - wjs) if (wjs is not None and cjs is not None) else None
         rows.append({
             "N": N, "qpa": ATTACKER_LIMIT // N,
-            "eligible":  result["n_eligible"],
+            "eligible": result["n_eligible"],
             "within_js": wjs, "cross_js": cjs, "gap": gap,
-            "detected":  result["sybil_detected"],
-            "FP":        "benign_001" in result["flagged_accounts"],
+            "detected": result["sybil_detected"],
+            "FP": "benign_001" in result["flagged_accounts"],
         })
     save(out_path, rows)
 
-
-# ── 4. combined_n_sweep.json ──────────────────────────────────────────────────
 
 def gen_combined_n_sweep(attacker, benign, out_path):
     if out_path.exists():
@@ -142,22 +125,20 @@ def gen_combined_n_sweep(attacker, benign, out_path):
     prada_benign_fp = run_prada_on_records(benign, DELTA).get("benign_001", {}).get("flagged", False)
     rows = []
     for N in N_SWEEP:
-        recs           = redistribute_queries(attacker, N)
+        recs = redistribute_queries(attacker, N)
         prada_detected = any(r["flagged"] for r in run_prada_on_records(recs, DELTA).values())
-        js_result      = sybil_detect(recs + benign)
-        js_detected    = js_result["sybil_detected"]
-        js_fp          = "benign_001" in js_result["flagged_accounts"]
+        js_result = sybil_detect(recs + benign)
+        js_detected = js_result["sybil_detected"]
+        js_fp = "benign_001" in js_result["flagged_accounts"]
         rows.append({
             "N": N,
             "prada_detected": bool(prada_detected),
-            "js_detected":    bool(js_detected),
-            "combined":       bool(prada_detected or js_detected),
-            "FP":             bool(prada_benign_fp or js_fp),
+            "js_detected": bool(js_detected),
+            "combined": bool(prada_detected or js_detected),
+            "FP": bool(prada_benign_fp or js_fp),
         })
     save(out_path, rows)
 
-
-# ── 5. mixed_sybil_n_sweep.json ───────────────────────────────────────────────
 
 def gen_mixed_sybil_n_sweep(mixed, benign, out_path):
     if out_path.exists():
@@ -166,23 +147,21 @@ def gen_mixed_sybil_n_sweep(mixed, benign, out_path):
     prada_benign_fp = run_prada_on_records(benign, DELTA).get("benign_001", {}).get("flagged", False)
     rows = []
     for N in N_SWEEP:
-        recs          = redistribute_queries(mixed, N)
-        prada         = run_prada_on_records(recs, DELTA)
+        recs = redistribute_queries(mixed, N)
+        prada = run_prada_on_records(recs, DELTA)
         flagged_count = sum(1 for r in prada.values() if r["flagged"])
-        js_result     = sybil_detect(recs + benign)
-        js_detected   = js_result["sybil_detected"]
-        js_fp         = "benign_001" in js_result["flagged_accounts"]
+        js_result = sybil_detect(recs + benign)
+        js_detected = js_result["sybil_detected"]
+        js_fp = "benign_001" in js_result["flagged_accounts"]
         rows.append({
             "N": N, "qpa": ATTACKER_LIMIT // N,
             "prada_flagged_count": flagged_count,
-            "js_detected":         bool(js_detected),
-            "combined":            bool(flagged_count > 0 or js_detected),
-            "FP":                  bool(prada_benign_fp or js_fp),
+            "js_detected": bool(js_detected),
+            "combined": bool(flagged_count > 0 or js_detected),
+            "FP": bool(prada_benign_fp or js_fp),
         })
     save(out_path, rows)
 
-
-# ── 6. js_threshold_sweep.json ────────────────────────────────────────────────
 
 def gen_js_threshold_sweep(attacker, mixed, benign, out_path):
     if out_path.exists():
@@ -195,7 +174,7 @@ def gen_js_threshold_sweep(attacker, mixed, benign, out_path):
             continue
         combined = redistribute_queries(source_records, N_FIXED) + benign
         for thresh in THRESH_SWEEP:
-            result   = run_sybil_detection(
+            result = run_sybil_detection(
                 combined,
                 js_threshold=thresh,
                 min_cluster=SYBIL_MIN_CLUSTER,
@@ -203,17 +182,15 @@ def gen_js_threshold_sweep(attacker, mixed, benign, out_path):
                 verbose=False,
             )
             wjs, cjs = js_stats(result)
-            gap      = (cjs - wjs) if (wjs is not None and cjs is not None) else None
+            gap = (cjs - wjs) if (wjs is not None and cjs is not None) else None
             rows.append({
                 "threshold": thresh, "source": source_name,
                 "within_js": wjs, "cross_js": cjs, "gap": gap,
-                "detected":  bool(result["sybil_detected"]),
-                "FP":        bool("benign_001" in result["flagged_accounts"]),
+                "detected": bool(result["sybil_detected"]),
+                "FP": bool("benign_001" in result["flagged_accounts"]),
             })
     save(out_path, rows)
 
-
-# ── Entry point ───────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     print("Loading records...")

@@ -1,19 +1,3 @@
-"""
-analysis/warmup_tradeoff.py — MIN_QUERIES Warmup Tradeoff Analysis
-
-Shows the tension between:
-  - Detection power: higher MIN_QUERIES → better statistical test
-  - Evasion surface: higher MIN_QUERIES → attacker stays under threshold cheaply
-
-Setup:
-  - 64 Sybil accounts, each receiving 100 queries (6400 attacker_001 records split evenly)
-  - 1 benign account with 3000 queries (benign_001)
-  - Sweep MIN_QUERIES over [25, 50, 75, 100, 150, 200]
-
-Each Sybil account produces ~90 dmin distances (100 queries - 10 first-per-class skips).
-Reference: the unsplit attacker_001 (6400 queries) IS detected at MIN_QUERIES=100.
-"""
-
 import json
 import sys
 from pathlib import Path
@@ -26,8 +10,8 @@ from defense.prada import run_prada_on_records
 
 LOG_PATH = ROOT / "logs" / "queries.jsonl"
 N_SYBIL_ACCOUNTS = 64
-QUERIES_PER_SYBIL = 100          # 6400 / 64
-ATTACKER_LIMIT = N_SYBIL_ACCOUNTS * QUERIES_PER_SYBIL   # 6400
+QUERIES_PER_SYBIL = 100
+ATTACKER_LIMIT = N_SYBIL_ACCOUNTS * QUERIES_PER_SYBIL
 BENIGN_LIMIT = 3000
 MIN_QUERIES_SWEEP = [25, 50, 75, 100, 150, 200]
 
@@ -51,7 +35,6 @@ def load_records():
 
 
 def split_into_sybil_accounts(attacker_records):
-    """Relabel attacker_001 records as sybil_000..sybil_063, 100 queries each."""
     sybil_records = []
     for i, rec in enumerate(attacker_records):
         account_idx = i // QUERIES_PER_SYBIL
@@ -65,7 +48,6 @@ def run_sweep(sybil_records, benign_records, unsplit_attacker_records):
     rows = []
 
     for min_q in MIN_QUERIES_SWEEP:
-        # Monkey-patch the module-level MIN_QUERIES used by run_shapiro
         det_module.MIN_QUERIES = min_q
 
         sybil_results = run_prada_on_records(sybil_records)
@@ -95,14 +77,11 @@ def run_sweep(sybil_records, benign_records, unsplit_attacker_records):
 
 def print_table(rows):
     col = f"{'MIN_Q':>6}  {'Sybil Flagged':>14}  {'In Warmup':>9}  {'Detect%':>8}  {'Benign FP':>9}  {'Unsplit':>7}"
-    sep = "-" * len(col)
     print()
     print("Warmup Tradeoff: PRADA Detection Rate vs MIN_QUERIES")
     print(f"  64 Sybil accounts × {QUERIES_PER_SYBIL} queries each | benign_001: {BENIGN_LIMIT} queries")
     print(f"  Each Sybil account yields ~90 dmin distances after first-per-class exclusion")
-    print(sep)
     print(col)
-    print(sep)
     for r in rows:
         benign_str = "YES (FP)" if r["benign_flagged"] else "no"
         unsplit_str = "DETECTED" if r["unsplit_flagged"] else "missed"
@@ -114,7 +93,6 @@ def print_table(rows):
             f"{benign_str:>9}  "
             f"{unsplit_str:>8}"
         )
-    print(sep)
     print()
     print("Columns:")
     print("  MIN_Q          : warmup threshold — Shapiro-Wilk only runs after this many dmin values")
@@ -135,14 +113,12 @@ def print_table(rows):
 
 if __name__ == "__main__":
     import warnings
-    warnings.filterwarnings("ignore")   # suppress scipy large-N p-value warning
+    warnings.filterwarnings("ignore")
 
     print(f"Loading logs from {LOG_PATH}")
     attacker_records, benign_records = load_records()
 
-    # Also load full attacker_001 for unsplit reference (up to 6400)
-    unsplit_attacker = [r for r in attacker_records]  # same 6400, single account_id
-    # Restore original account_id (not yet relabeled)
+    unsplit_attacker = [r for r in attacker_records]
     print(f"Loaded {len(attacker_records)} attacker records, {len(benign_records)} benign records")
 
     sybil_records = split_into_sybil_accounts(attacker_records)

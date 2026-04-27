@@ -1,11 +1,3 @@
-"""
-analysis/mixed_ratio_results.py — PRADA W scores for mixed-ratio accounts.
-
-Loads mixed_010..mixed_090 from the query log (first 6400 records each),
-runs PRADA, and saves results to analysis/results/mixed_ratio.json.
-No server needed.
-"""
-
 import json
 import sys
 from pathlib import Path

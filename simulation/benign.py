@@ -8,8 +8,8 @@ IMAGE_DIR = Path("images/seed")
 
 def simulate_benign(account_id: str = "benign_001"):
     image_paths = list(IMAGE_DIR.glob("*.png"))
-    random.shuffle(image_paths)  # randomise order so dmin distances are naturally distributed
-    
+    random.shuffle(image_paths)
+
     if not image_paths:
         print("No images found. Run simulation/export.py first.")
         return

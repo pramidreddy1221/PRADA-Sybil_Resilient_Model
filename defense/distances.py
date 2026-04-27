@@ -9,10 +9,10 @@ def compute_dmin_per_account(records: list[dict]) -> dict:
     results = {}
 
     for account_id, queries in by_account.items():
-        Gc  = defaultdict(list)
-        Tc  = defaultdict(float)
+        Gc = defaultdict(list)
+        Tc = defaultdict(float)
         DGc = defaultdict(list)
-        D   = []
+        D = []
 
         for query in queries:
             if "input_vector" not in query:
