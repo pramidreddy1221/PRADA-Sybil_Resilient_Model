@@ -10,18 +10,12 @@ if str(_ROOT) not in sys.path:
 
 from defense.logs import load_logs
 from defense.distances import compute_dmin_per_account
+from defense.sybil_detection import js_divergence
 from simulation.sybil import redistribute_queries
 from config import LOG_PATH, SYBIL_MIN_DMIN, SYBIL_N_BINS
 
 N_SYBIL = 64
 BENIGN_ID = "benign_001"
-
-
-def js_divergence(p: np.ndarray, q: np.ndarray) -> float:
-    m = 0.5 * (p + q)
-    kl_pm = np.sum(p * np.log(p / (m + 1e-300) + 1e-300))
-    kl_qm = np.sum(q * np.log(q / (m + 1e-300) + 1e-300))
-    return float(np.clip(0.5 * (kl_pm + kl_qm), 0.0, None))
 
 
 def kl_symmetric(p: np.ndarray, q: np.ndarray) -> float:

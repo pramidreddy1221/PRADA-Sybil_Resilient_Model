@@ -51,19 +51,14 @@ def graph1():
 
     fig, ax = plt.subplots(figsize=(8, 5))
 
-    styles = {
-        "attacker_001": ("Papernot (fixed lr=0.01, 10 epochs)", "steelblue", "o"),
-        "attacker_cvsearch": ("CV-Search (lr=0.01, 160 epochs)",   "darkorange", "s"),
-    }
-    for key, (label, color, marker) in styles.items():
-        rounds = [r["round"] for r in data[key]["rounds"]]
-        agr = [r["agreement"] * 100 for r in data[key]["rounds"]]
-        ax.plot(rounds, agr, marker=marker, color=color, linewidth=2,
-                markersize=7, label=label)
+    rounds = [r["round"] for r in data["attacker_001"]["rounds"]]
+    agr = [r["agreement"] * 100 for r in data["attacker_001"]["rounds"]]
+    ax.plot(rounds, agr, marker="o", color="steelblue", linewidth=2,
+            markersize=7, label="Papernot (fixed lr=0.01, 10 epochs)")
 
     ax.set_xlabel("Round")
     ax.set_ylabel("Agreement with Victim (%)")
-    ax.set_title("Substitute Model Agreement per Round")
+    ax.set_title("Substitute Model Agreement per Round (Papernot JbDA)")
     ax.set_xticks(range(1, 7))
     ax.set_ylim(0, 110)
     ax.legend()
