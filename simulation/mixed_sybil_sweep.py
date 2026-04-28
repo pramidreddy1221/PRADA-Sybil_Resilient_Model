@@ -6,7 +6,8 @@ if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
 from simulation.mixed          import run_mixed_attack
-from simulation.sybil          import redistribute_queries, run_prada_on_records
+from simulation.sybil          import redistribute_queries
+from defense.prada             import run_prada_on_records
 from defense.sybil_detection   import run_sybil_detection
 from defense.logs              import load_logs
 from config                    import LOG_PATH

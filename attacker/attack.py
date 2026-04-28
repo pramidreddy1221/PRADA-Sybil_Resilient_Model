@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import numpy as np
 import torch
-from config import DEVICE, ROUNDS, SEED_PER_CLASS, SAVE_PATH, RESULTS_PATH
+from config import DEVICE, ROUNDS, SEED_PER_CLASS, SAVE_PATH, RESULTS_PATH, ROOT
 
 from attacker.substitute_model import SubstituteCNN
 from attacker.seed              import get_seed_samples
@@ -69,8 +69,9 @@ def run_attack():
 
 def run_attack_cvsearch():
     from attacker.train import train_substitute_cvsearch, train_substitute_fixed
+    from attacker.substitute_model_cv import SubstituteCNNWithDropout
 
-    substitute = SubstituteCNN().to(DEVICE)
+    substitute = SubstituteCNNWithDropout().to(DEVICE)
 
     print("\n[Phase 1] Loading seed samples...")
     seed_images, _ = get_seed_samples(SEED_PER_CLASS)
@@ -109,7 +110,7 @@ def run_attack_cvsearch():
             "agreement": round(agreement, 4)
         })
 
-        print(f"  Generating synthetic samples (FGSM)...")
+        print(f"  Generating synthetic samples (Jacobian augmentation)...")
         synthetic_images = jacobian_augment(substitute, all_images, all_labels)
         print(f"  Generated {len(synthetic_images)} synthetic samples")
 
@@ -119,12 +120,15 @@ def run_attack_cvsearch():
         all_images = np.concatenate([all_images, synthetic_images], axis=0)
         all_labels = all_labels + synthetic_labels
 
-    torch.save(substitute.state_dict(), SAVE_PATH)
-    print(f"\n[Done] Substitute model saved -> {SAVE_PATH}")
+    cvsearch_results_path = ROOT / "attacker" / "cvsearch_results.json"
 
-    with open(RESULTS_PATH, "w") as f:
+    cvsearch_model_path = SAVE_PATH.parent / "substitute_model_cv.pt"
+    torch.save(substitute.state_dict(), cvsearch_model_path)
+    print(f"\n[Done] CV-Search model saved -> {cvsearch_model_path}")
+
+    with open(cvsearch_results_path, "w") as f:
         json.dump(results, f, indent=2)
-    print(f"[Done] Results saved -> {RESULTS_PATH}")
+    print(f"[Done] Results saved -> {cvsearch_results_path}")
 
     print("\n[Summary]")
     print(f"{'Round':<8} {'Samples':<10} {'Agreement'}")

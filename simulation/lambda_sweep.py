@@ -8,7 +8,6 @@ if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
 import numpy as np
-from scipy.stats import shapiro
 
 from config import DEVICE, ROUNDS, SEED_PER_CLASS, LOG_PATH, DELTA
 from attacker.substitute_model import SubstituteCNN
@@ -97,42 +96,3 @@ if __name__ == "__main__":
             print(f"Skipping {account_id} — already in log")
             continue
         run_papernot_attack(account_id, lam)
-
-    all_records = load_logs(LOG_PATH)
-
-    print("\n  PRADA Detection — Lambda Sweep")
-    print(f"  {'Account':<15} {'Lambda':>10} {'W score':>10} {'Flagged'}")
-    print("  " + "-" * 50)
-    lambda_rows = []
-    for account_id in PRADA_ACCOUNTS:
-        records = [r for r in all_records if r["account_id"] == account_id]
-
-        if not records:
-            continue
-
-        vectors = [np.array(r["input_vector"], dtype=np.float32) for r in records]
-
-        WINDOW = 100
-        D = []
-        for i in range(1, len(vectors)):
-            start = max(0, i - WINDOW)
-            dists = [np.linalg.norm(vectors[i] - vectors[j])
-                     for j in range(start, i)]
-            D.append(min(dists))
-
-        if len(D) < 100:
-            print(f"  {account_id:<15} {'N/A':>10} {'warmup':>10}")
-            lambda_rows.append({"account_id": account_id, "lambda": LAMBDA_LABELS.get(account_id), "W": None, "flagged": False})
-            continue
-
-        W, _ = shapiro(D)
-        flagged = W < DELTA
-        status = "YES" if flagged else "NO"
-        print(f"  {account_id:<15} {LAMBDA_LABELS[account_id]:>10} {W:>10.4f}  {status}")
-        lambda_rows.append({"account_id": account_id, "lambda": LAMBDA_LABELS.get(account_id), "W": float(W), "flagged": bool(flagged)})
-
-    import json
-    out_path = _ROOT / "analysis" / "results" / "lambda_sweep.json"
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(lambda_rows, indent=2), encoding="utf-8")
-    print(f"Saved → {out_path.relative_to(_ROOT)}")

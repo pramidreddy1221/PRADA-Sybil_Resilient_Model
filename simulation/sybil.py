@@ -9,6 +9,7 @@ if str(_ROOT) not in sys.path:
 from defense.logs import load_logs
 from defense.distances import compute_dmin_per_account
 from defense.detection import run_shapiro
+from defense.prada import run_prada_on_records
 from config import LOG_PATH, DELTA, MIN_QUERIES
 
 SOURCE_ACCOUNT = "attacker_001"
@@ -23,22 +24,6 @@ def redistribute_queries(records: list[dict], n_accounts: int) -> list[dict]:
         new_rec["account_id"] = sybil_ids[i % n_accounts]
         result.append(new_rec)
     return result
-
-
-def run_prada_on_records(records: list[dict], delta: float = DELTA) -> dict:
-    account_dmin = compute_dmin_per_account(records)
-    results = {}
-    for account_id, data in account_dmin.items():
-        shapiro = run_shapiro(data["D"], delta)
-        results[account_id] = {
-            "n_queries": data["n_queries"],
-            "n_distances": len(data["D"]),
-            "W": shapiro["W"],
-            "p_value": shapiro["p_value"],
-            "flagged": shapiro["flagged"],
-            "reason": shapiro["reason"],
-        }
-    return results
 
 
 def run_sybil_experiment(
@@ -59,7 +44,7 @@ def run_sybil_experiment(
 
     if not attacker_records:
         print(f"\n[ERROR] No records found for account '{source_account}'.")
-        print("  Run the Papernot attack first (python -m attacker.attack).")
+        print("  Run the attacker first (python -m attacker.attack).")
         sys.exit(1)
 
     experiment_results = {}
