@@ -23,7 +23,7 @@ def run(accounts=ACCOUNTS, subset_size=500):
     print(f"image pool: {len(image_paths)} images")
 
     for idx, account_id in enumerate(accounts):
-        random.seed(idx)
+        random.seed(idx)  # seeding by index gives each account a different but reproducible subset; a fixed seed would give every account the same draw
         subset = random.sample(image_paths, min(subset_size, len(image_paths)))
         print(f"{account_id}: sending {len(subset)} images")
         for i, path in enumerate(subset):

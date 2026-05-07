@@ -14,7 +14,7 @@ def compute_dmin_per_account(records: list[dict]) -> dict:
         Gc = defaultdict(list)   # Gc[c]: per-class reference set of query vectors
         Tc = defaultdict(float)  # Tc[c]: per-class running threshold for adding to reference set
         DGc = defaultdict(list)  # DGc[c]: distances that caused a reference set update
-        D = []                   # D: full dmin sequence — input to Shapiro-Wilk
+        D = []                   # D: full dmin sequence - input to Shapiro-Wilk
 
         for query in queries:
             if "input_vector" not in query:
@@ -36,7 +36,7 @@ def compute_dmin_per_account(records: list[dict]) -> dict:
             if dmin > Tc[c]:
                 DGc[c].append(dmin)
                 Gc[c].append(x_vec)
-                Tc[c] = max(Tc[c], np.mean(DGc[c]) - np.std(DGc[c]))  # monotone raise: threshold tracks mean − std of accepted dmins
+                Tc[c] = max(Tc[c], np.mean(DGc[c]) - np.std(DGc[c]))  # monotone raise: threshold tracks mean - std of accepted dmins
 
         results[account_id] = {
             "D": D,

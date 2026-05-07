@@ -7,8 +7,8 @@ LOG_IN = ROOT / "logs" / "queries.jsonl"
 LOG_OUT = ROOT / "logs" / "queries_clean.jsonl"
 
 BENIGN_ACCOUNT = "benign_001"
-BENIGN_LIMIT = 3000
-DEFAULT_LIMIT = 6400
+BENIGN_LIMIT = 3000    # matches the number of images simulated by benign_001
+DEFAULT_LIMIT = 6400   # 64 x 100 - the exact query count needed for Sybil evasion analysis (N=64 accounts x MIN_QUERIES=100)
 
 
 def limit_for(account_id: str) -> int:

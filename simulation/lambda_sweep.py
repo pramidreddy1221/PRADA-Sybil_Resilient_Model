@@ -53,7 +53,7 @@ LAMBDA_LABELS = {
 
 
 def run_papernot_attack(account_id: str, lam: float) -> None:
-    _augment_mod.LAMBDA = lam
+    _augment_mod.LAMBDA = lam  # overrides the module-level LAMBDA constant so jacobian_augment picks up the sweep value at call time without reimporting
 
     substitute = SubstituteCNN().to(DEVICE)
 

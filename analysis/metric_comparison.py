@@ -25,6 +25,7 @@ def kl_symmetric(p: np.ndarray, q: np.ndarray) -> float:
 
 
 def wasserstein(p: np.ndarray, q: np.ndarray, bin_centers: np.ndarray) -> float:
+    # bin_centers appears twice because scipy expects the support values for each distribution separately - both histograms share the same bin support.
     return float(scipy_wasserstein(bin_centers, bin_centers, u_weights=p, v_weights=q))
 
 

@@ -37,7 +37,7 @@ def load_records():
 def split_into_sybil_accounts(attacker_records):
     sybil_records = []
     for i, rec in enumerate(attacker_records):
-        account_idx = i // QUERIES_PER_SYBIL
+        account_idx = i // QUERIES_PER_SYBIL  # block split: each account gets a contiguous slice. simulation/sybil.py uses round-robin (i % N) instead.
         new_rec = dict(rec)
         new_rec["account_id"] = f"sybil_{account_idx:03d}"
         sybil_records.append(new_rec)
@@ -48,7 +48,7 @@ def run_sweep(sybil_records, benign_records, unsplit_attacker_records):
     rows = []
 
     for min_q in MIN_QUERIES_SWEEP:
-        det_module.MIN_QUERIES = min_q
+        det_module.MIN_QUERIES = min_q  # overrides the constant in defense.detection at runtime so the sweep value propagates to all PRADA calls without reimporting
 
         sybil_results = run_prada_on_records(sybil_records)
         benign_results = run_prada_on_records(benign_records)

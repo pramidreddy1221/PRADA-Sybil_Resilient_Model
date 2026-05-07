@@ -26,7 +26,7 @@ def query_victim(images, account_id: str = "attacker_001"):
             labels.append(-1)
             probs.append([])
 
-        if i > 0 and i % 500 == 0:
+        if i > 0 and i % 500 == 0:  # i > 0 guards against sleeping before the first request (0 % 500 == 0 is true). 500-query interval and 0.1s sleep are empirical to avoid overwhelming the FastAPI server.
             time.sleep(0.1)
 
     return labels, probs

@@ -21,9 +21,9 @@ from config import (
 RESULTS_DIR = ROOT / "analysis" / "results"
 ATTACKER_LIMIT = 6400
 BENIGN_LIMIT = 3000
-N_SWEEP = [4, 8, 16, 32, 56, 64, 128, 192, 256]
+N_SWEEP = [4, 8, 16, 32, 56, 64, 128, 192, 256]  # 56 is the last N where PRADA still runs (qpa=114 > MIN_QUERIES=100). At N=64, qpa=100 but ~90 dmin values after first-per-class skip pushes every account below the warmup floor.
 THRESH_SWEEP = [0.05, 0.10, 0.15, 0.20, 0.25, 0.30]
-N_FIXED = 64
+N_FIXED = 64  # Sybil evasion threshold - derived from 6400 total queries / MIN_QUERIES=100, not an arbitrary choice
 
 
 def save(path: Path, data) -> None:
