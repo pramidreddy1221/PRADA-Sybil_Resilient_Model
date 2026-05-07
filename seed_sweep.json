@@ -1,0 +1,224 @@
+{
+  "1": {
+    "n_per_class": 1,
+    "total_seeds": 10,
+    "final_agreement": 0.492,
+    "rounds": [
+      {
+        "round": 1,
+        "n_samples": 10,
+        "agreement": 0.089
+      },
+      {
+        "round": 2,
+        "n_samples": 20,
+        "agreement": 0.089
+      },
+      {
+        "round": 3,
+        "n_samples": 40,
+        "agreement": 0.089
+      },
+      {
+        "round": 4,
+        "n_samples": 80,
+        "agreement": 0.416
+      },
+      {
+        "round": 5,
+        "n_samples": 160,
+        "agreement": 0.461
+      },
+      {
+        "round": 6,
+        "n_samples": 320,
+        "agreement": 0.492
+      }
+    ]
+  },
+  "2": {
+    "n_per_class": 2,
+    "total_seeds": 20,
+    "final_agreement": 0.646,
+    "rounds": [
+      {
+        "round": 1,
+        "n_samples": 20,
+        "agreement": 0.11
+      },
+      {
+        "round": 2,
+        "n_samples": 40,
+        "agreement": 0.094
+      },
+      {
+        "round": 3,
+        "n_samples": 80,
+        "agreement": 0.313
+      },
+      {
+        "round": 4,
+        "n_samples": 160,
+        "agreement": 0.529
+      },
+      {
+        "round": 5,
+        "n_samples": 320,
+        "agreement": 0.634
+      },
+      {
+        "round": 6,
+        "n_samples": 640,
+        "agreement": 0.646
+      }
+    ]
+  },
+  "5": {
+    "n_per_class": 5,
+    "total_seeds": 50,
+    "final_agreement": 0.798,
+    "rounds": [
+      {
+        "round": 1,
+        "n_samples": 50,
+        "agreement": 0.148
+      },
+      {
+        "round": 2,
+        "n_samples": 100,
+        "agreement": 0.2
+      },
+      {
+        "round": 3,
+        "n_samples": 200,
+        "agreement": 0.693
+      },
+      {
+        "round": 4,
+        "n_samples": 400,
+        "agreement": 0.769
+      },
+      {
+        "round": 5,
+        "n_samples": 800,
+        "agreement": 0.776
+      },
+      {
+        "round": 6,
+        "n_samples": 1600,
+        "agreement": 0.798
+      }
+    ]
+  },
+  "10": {
+    "n_per_class": 10,
+    "total_seeds": 100,
+    "final_agreement": 0.889,
+    "rounds": [
+      {
+        "round": 1,
+        "n_samples": 100,
+        "agreement": 0.262
+      },
+      {
+        "round": 2,
+        "n_samples": 200,
+        "agreement": 0.708
+      },
+      {
+        "round": 3,
+        "n_samples": 400,
+        "agreement": 0.824
+      },
+      {
+        "round": 4,
+        "n_samples": 800,
+        "agreement": 0.818
+      },
+      {
+        "round": 5,
+        "n_samples": 1600,
+        "agreement": 0.853
+      },
+      {
+        "round": 6,
+        "n_samples": 3200,
+        "agreement": 0.889
+      }
+    ]
+  },
+  "20": {
+    "n_per_class": 20,
+    "total_seeds": 200,
+    "final_agreement": 0.938,
+    "rounds": [
+      {
+        "round": 1,
+        "n_samples": 200,
+        "agreement": 0.678
+      },
+      {
+        "round": 2,
+        "n_samples": 400,
+        "agreement": 0.899
+      },
+      {
+        "round": 3,
+        "n_samples": 800,
+        "agreement": 0.913
+      },
+      {
+        "round": 4,
+        "n_samples": 1600,
+        "agreement": 0.931
+      },
+      {
+        "round": 5,
+        "n_samples": 3200,
+        "agreement": 0.935
+      },
+      {
+        "round": 6,
+        "n_samples": 6400,
+        "agreement": 0.938
+      }
+    ]
+  },
+  "50": {
+    "n_per_class": 50,
+    "total_seeds": 500,
+    "final_agreement": 0.974,
+    "rounds": [
+      {
+        "round": 1,
+        "n_samples": 500,
+        "agreement": 0.849
+      },
+      {
+        "round": 2,
+        "n_samples": 1000,
+        "agreement": 0.945
+      },
+      {
+        "round": 3,
+        "n_samples": 2000,
+        "agreement": 0.956
+      },
+      {
+        "round": 4,
+        "n_samples": 4000,
+        "agreement": 0.97
+      },
+      {
+        "round": 5,
+        "n_samples": 8000,
+        "agreement": 0.965
+      },
+      {
+        "round": 6,
+        "n_samples": 16000,
+        "agreement": 0.974
+      }
+    ]
+  }
+}

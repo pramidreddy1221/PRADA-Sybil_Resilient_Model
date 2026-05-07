@@ -21,7 +21,7 @@ def redistribute_queries(records: list[dict], n_accounts: int) -> list[dict]:
     result = []
     for i, rec in enumerate(records):
         new_rec = dict(rec)
-        new_rec["account_id"] = sybil_ids[i % n_accounts]
+        new_rec["account_id"] = sybil_ids[i % n_accounts]  # round-robin: distributes queries evenly, each account gets total/N queries
         result.append(new_rec)
     return result
 
@@ -71,7 +71,7 @@ def run_sybil_experiment(
         print(f"  Missed  : {n_missed}/{N}")
 
         if n_flagged == 0:
-            print("  *** PRADA COMPLETELY BLIND at this split level ***")
+            print("  PRADA blind at this split level - all accounts in warmup")
 
         experiment_results[N] = {
             "n_accounts": N,
@@ -86,7 +86,6 @@ def run_sybil_experiment(
 
 
 def print_summary_table(results: dict) -> None:
-    print("\n")
     print("RESULTS SUMMARY — PRADA Detection Rate vs Sybil Split Level")
     header = (f"{'Split Level':<14} {'Total Queries':>14} "
               f"{'Queries/Acct':>13} {'Flagged':>10} {'Missed':>10}")

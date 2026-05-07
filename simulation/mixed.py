@@ -3,10 +3,10 @@ import torch
 from config import DEVICE, ROUNDS, SEED_PER_CLASS, SAVE_PATH
 
 from attacker.substitute_model import SubstituteCNN
-from attacker.seed              import get_seed_samples
-from attacker.query             import query_victim
-from attacker.train             import train_substitute, evaluate_substitute
-from attacker.augment           import jacobian_augment
+from attacker.seed import get_seed_samples
+from attacker.query import query_victim
+from attacker.train import train_substitute, evaluate_substitute
+from attacker.augment import jacobian_augment
 
 ACCOUNT_ID = "mixed_001"
 NORMAL_RATIO = 0.30

@@ -1,4 +1,5 @@
 import sys
+import numpy as np
 from pathlib import Path
 
 _ROOT = Path(__file__).resolve().parent
@@ -8,8 +9,9 @@ if str(_ROOT) not in sys.path:
 from defense.logs import load_logs
 from defense.prada import run_prada_on_records
 from defense.sybil_detection import run_sybil_detection, compute_pairwise_js, build_histograms
+from defense.distances import compute_dmin_per_account
 from simulation.sybil import redistribute_queries
-from config import LOG_PATH, SYBIL_MIN_DMIN
+from config import LOG_PATH, SYBIL_MIN_DMIN, SYBIL_JS_THRESHOLD
 
 
 def prada_summary(prada_results: dict, prefix: str = "") -> tuple:
@@ -28,8 +30,8 @@ def evaluate():
     benign_records = [r for r in all_records if r["account_id"] == "benign_001"][:3000]
 
     print(f"\nLog: {LOG_PATH.name}")
-    print(f"  attacker_001 : {len(attacker_records):>5} queries")
-    print(f"  benign_001   : {len(benign_records):>5} queries")
+    print(f"  attacker_001: {len(attacker_records):>5} queries")
+    print(f"  benign_001: {len(benign_records):>5} queries")
 
     summary_rows = []
 
@@ -38,8 +40,8 @@ def evaluate():
     prada_res = run_prada_on_records(attacker_records)
     r0 = prada_res["attacker_001"]
     prada_str = f"YES (W={r0['W']})" if r0["flagged"] else f"NO (W={r0['W']})"
-    print(f"  PRADA        : {prada_str}")
-    print(f"  Sybil detect : N/A (single account — cross-account analysis requires >= 3)")
+    print(f"  PRADA: {prada_str}")
+    print(f"  Sybil detect: N/A (single account — cross-account analysis requires >= 3)")
     combined_detected = r0["flagged"]
     summary_rows.append(_row("N=1 baseline", prada_str, "N/A", combined_detected, is_attack=True))
 
@@ -54,9 +56,9 @@ def evaluate():
             f"YES ({n_prada_flagged}/{N})" if n_prada_flagged > 0
             else f"NO  (0/{N} — {n_warmup} in warmup)"
         )
-        print(f"  PRADA        : {prada_str}")
+        print(f"  PRADA: {prada_str}")
 
-        print(f"  Sybil detect :")
+        print(f"  Sybil detect:")
         sd_res = run_sybil_detection(sybil_records, verbose=True)
 
         sybil_str = (
@@ -74,9 +76,9 @@ def evaluate():
     r_b = prada_res.get("benign_001", {})
     n_b_flagged = int(r_b.get("flagged", False))
     prada_str = f"{'YES (FP!)' if n_b_flagged else 'NO '} (W={r_b.get('W','?')})"
-    print(f"  PRADA        : {prada_str}")
+    print(f"  PRADA: {prada_str}")
 
-    print(f"  Sybil detect :")
+    print(f"  Sybil detect:")
     sd_benign = run_sybil_detection(benign_records, verbose=True)
     sybil_str = "NO " if not sd_benign["sybil_detected"] else "YES (FP!)"
 
@@ -92,22 +94,22 @@ def evaluate():
     sybil_accts = [a for a in prada_mixed if a.startswith("sybil_")]
     benign_accts = [a for a in prada_mixed if not a.startswith("sybil_")]
 
-    n_sybil_prada = sum(1 for a in sybil_accts  if prada_mixed[a]["flagged"])
+    n_sybil_prada = sum(1 for a in sybil_accts if prada_mixed[a]["flagged"])
     n_benign_prada = sum(1 for a in benign_accts if prada_mixed[a]["flagged"])
-    n_sybil_warmup = sum(1 for a in sybil_accts  if prada_mixed[a]["W"] is None)
+    n_sybil_warmup = sum(1 for a in sybil_accts if prada_mixed[a]["W"] is None)
 
-    print(f"  PRADA        : Sybil {n_sybil_prada}/64 flagged ({n_sybil_warmup} warmup), "
+    print(f"  PRADA: Sybil {n_sybil_prada}/64 flagged ({n_sybil_warmup} warmup), "
           f"Benign {n_benign_prada}/1 flagged")
 
-    print(f"  Sybil detect :")
+    print(f"  Sybil detect:")
     sd_mixed = run_sybil_detection(mixed_records, verbose=True)
 
     sybil_in_cluster = [a for a in sd_mixed["flagged_accounts"] if a.startswith("sybil_")]
     benign_in_cluster = [a for a in sd_mixed["flagged_accounts"] if not a.startswith("sybil_")]
 
     print(f"\n  Mixed scenario breakdown:")
-    print(f"    Sybil  accounts flagged by Sybil detection : {len(sybil_in_cluster)}/64")
-    print(f"    Benign accounts flagged by Sybil detection : {len(benign_in_cluster)}/1"
+    print(f"    Sybil accounts flagged by Sybil detection: {len(sybil_in_cluster)}/64")
+    print(f"    Benign accounts flagged by Sybil detection: {len(benign_in_cluster)}/1"
           + ("  ← FALSE POSITIVE" if benign_in_cluster else "  ← correct (no FP)"))
 
     attack_caught = sd_mixed["sybil_detected"] or (n_sybil_prada > 0)
@@ -131,14 +133,11 @@ def evaluate():
 
 
 def _js_diagnostics(attacker_records: list, benign_records: list):
-    import numpy as np
-
     _section("JS DIVERGENCE DIAGNOSTICS — threshold justification")
 
     sybil_64 = redistribute_queries(attacker_records, 64)
     mixed = sybil_64 + benign_records
 
-    from defense.distances import compute_dmin_per_account
     account_dmin = compute_dmin_per_account(mixed)
     eligible = {a: d["D"] for a, d in account_dmin.items() if len(d["D"]) >= SYBIL_MIN_DMIN}
 
@@ -165,7 +164,6 @@ def _js_diagnostics(attacker_records: list, benign_records: list):
         print(f"  Separation gap                 : {gap:.4f}  "
               f"({'clear separation' if gap > 0 else 'OVERLAP — consider tuning threshold'})")
 
-    from config import SYBIL_JS_THRESHOLD
     t = SYBIL_JS_THRESHOLD
     threshold_ok = (
         within_sybil and cross_js

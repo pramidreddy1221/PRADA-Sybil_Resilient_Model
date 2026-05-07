@@ -1,3 +1,4 @@
+# Implements the JbDA model extraction loop from Algorithm 1, Papernot et al.
 from __future__ import annotations
 
 import json
@@ -6,10 +7,11 @@ import torch
 from config import DEVICE, ROUNDS, SEED_PER_CLASS, SAVE_PATH, RESULTS_PATH, ROOT
 
 from attacker.substitute_model import SubstituteCNN
-from attacker.seed              import get_seed_samples
-from attacker.query             import query_victim
-from attacker.train             import train_substitute, evaluate_substitute
-from attacker.augment           import jacobian_augment
+from attacker.substitute_model_cv import SubstituteCNNWithDropout
+from attacker.seed import get_seed_samples
+from attacker.query import query_victim
+from attacker.train import train_substitute, evaluate_substitute, train_substitute_cvsearch, train_substitute_fixed
+from attacker.augment import jacobian_augment
 
 
 def run_attack():
@@ -68,9 +70,6 @@ def run_attack():
 
 
 def run_attack_cvsearch():
-    from attacker.train import train_substitute_cvsearch, train_substitute_fixed
-    from attacker.substitute_model_cv import SubstituteCNNWithDropout
-
     substitute = SubstituteCNNWithDropout().to(DEVICE)
 
     print("\n[Phase 1] Loading seed samples...")

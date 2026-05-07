@@ -1,3 +1,4 @@
+# Jacobian-based dataset augmentation from Papernot et al. — three variants implemented.
 import torch
 import torch.nn as nn
 import numpy as np
@@ -5,6 +6,7 @@ import numpy as np
 from config import DEVICE, LAMBDA
 
 
+# FGSM: single gradient step in the sign direction
 def jacobian_augment(model, images: np.ndarray, labels: list) -> np.ndarray:
     model.eval()
 
@@ -25,6 +27,7 @@ def jacobian_augment(model, images: np.ndarray, labels: list) -> np.ndarray:
     return synthetic.squeeze(1).cpu().numpy()
 
 
+# I-FGSM: iterative gradient steps, total perturbation bounded by LAMBDA
 def jacobian_augment_ifgsm(model, images: np.ndarray, labels: list, n_steps: int = 10) -> np.ndarray:
     model.eval()
     step_size = LAMBDA / n_steps
@@ -48,6 +51,7 @@ def jacobian_augment_ifgsm(model, images: np.ndarray, labels: list, n_steps: int
     return X_adv.squeeze(1).cpu().numpy()
 
 
+# MI-FGSM: momentum iterative — accumulates gradient direction across steps to stabilise updates
 def jacobian_augment_mifgsm(model, images: np.ndarray, labels: list, n_steps: int = 10, mu: float = 1.0) -> np.ndarray:
     model.eval()
     step_size = LAMBDA / n_steps

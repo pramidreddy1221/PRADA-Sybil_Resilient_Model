@@ -1,3 +1,6 @@
+# Novel extension addressing the open problem in Section V-C of the PRADA paper.
+# Detects Sybil attacks via cross-account JS divergence on dmin histograms.
+# Sybil accounts query identically, so their dmin distributions converge.
 import sys
 import numpy as np
 from pathlib import Path
@@ -17,6 +20,8 @@ from config import (
 from defense.logs import load_logs
 
 
+# Hand-rolled: scipy's jensenshannon clips to [0,1] and uses different epsilon handling.
+# This version gives numerical control over sparse histogram bins.
 def js_divergence(p: np.ndarray, q: np.ndarray) -> float:
     m = 0.5 * (p + q)
     kl_pm = np.sum(p * np.log(p / (m + 1e-300) + 1e-300))
@@ -39,6 +44,7 @@ def build_histograms(
     if global_min == global_max:
         global_max = global_min + 1e-6
 
+    # All histograms must share the same bin edges — per-account bins would make JS comparisons meaningless.
     bins = np.linspace(global_min, global_max, n_bins + 1)
 
     histograms = {}
@@ -79,7 +85,7 @@ def find_sybil_cluster(
             1 for j in range(n)
             if j != i and js_matrix[i, j] < js_threshold
         )
-        if n_similar >= min_cluster - 1:
+        if n_similar >= min_cluster - 1:  # account i needs min_cluster-1 similar neighbors, making the total cluster size min_cluster
             flagged.append(accounts[i])
 
     return flagged

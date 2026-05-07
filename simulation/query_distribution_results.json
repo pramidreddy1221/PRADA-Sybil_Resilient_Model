@@ -1,0 +1,32 @@
+[
+  {
+    "name": "round-robin",
+    "elig_s": 64,
+    "elig_b": 30,
+    "within_js": 0.1916277532622851,
+    "cross_js": null,
+    "gap": null,
+    "detected": true,
+    "fp": 30
+  },
+  {
+    "name": "randomized",
+    "elig_s": 64,
+    "elig_b": 30,
+    "within_js": 0.13408059703236658,
+    "cross_js": null,
+    "gap": null,
+    "detected": true,
+    "fp": 30
+  },
+  {
+    "name": "mixed-70-30",
+    "elig_s": 64,
+    "elig_b": 30,
+    "within_js": 0.0664571167197469,
+    "cross_js": null,
+    "gap": null,
+    "detected": true,
+    "fp": 30
+  }
+]

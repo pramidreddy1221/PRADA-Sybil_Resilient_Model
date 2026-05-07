@@ -1,0 +1,72 @@
+[
+  {
+    "N": 4,
+    "qpa": 1600,
+    "total_combined_queries": 6400,
+    "combined_W": 0.9264,
+    "naive_flagged": true,
+    "per_account_flagged": 4,
+    "per_account_total": 4,
+    "js_detected": true
+  },
+  {
+    "N": 8,
+    "qpa": 800,
+    "total_combined_queries": 6400,
+    "combined_W": 0.9264,
+    "naive_flagged": true,
+    "per_account_flagged": 8,
+    "per_account_total": 8,
+    "js_detected": true
+  },
+  {
+    "N": 16,
+    "qpa": 400,
+    "total_combined_queries": 6400,
+    "combined_W": 0.9264,
+    "naive_flagged": true,
+    "per_account_flagged": 16,
+    "per_account_total": 16,
+    "js_detected": true
+  },
+  {
+    "N": 32,
+    "qpa": 200,
+    "total_combined_queries": 6400,
+    "combined_W": 0.9264,
+    "naive_flagged": true,
+    "per_account_flagged": 32,
+    "per_account_total": 32,
+    "js_detected": true
+  },
+  {
+    "N": 64,
+    "qpa": 100,
+    "total_combined_queries": 6400,
+    "combined_W": 0.9264,
+    "naive_flagged": true,
+    "per_account_flagged": 0,
+    "per_account_total": 64,
+    "js_detected": true
+  },
+  {
+    "N": 128,
+    "qpa": 50,
+    "total_combined_queries": 6400,
+    "combined_W": 0.9264,
+    "naive_flagged": true,
+    "per_account_flagged": 0,
+    "per_account_total": 128,
+    "js_detected": true
+  },
+  {
+    "N": 256,
+    "qpa": 25,
+    "total_combined_queries": 6400,
+    "combined_W": 0.9264,
+    "naive_flagged": true,
+    "per_account_flagged": 0,
+    "per_account_total": 256,
+    "js_detected": true
+  }
+]

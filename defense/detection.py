@@ -14,7 +14,7 @@ def run_shapiro(D: list[float], delta: float = DELTA) -> dict:
     D_arr = np.array(D, dtype=np.float64)
     mean = np.mean(D_arr)
     std = np.std(D_arr)
-    D_clean = D_arr[np.abs(D_arr - mean) <= 3 * std]
+    D_clean = D_arr[np.abs(D_arr - mean) <= 3 * std]  # 3-sigma clip removes outliers before Shapiro-Wilk; standard preprocessing for normality tests
 
     if len(D_clean) < 10:
         return {
@@ -25,7 +25,7 @@ def run_shapiro(D: list[float], delta: float = DELTA) -> dict:
         }
 
     W, p_value = shapiro(D_clean)
-    flagged = float(W) < delta
+    flagged = float(W) < delta  # flagged on W score, not p-value — matches Algorithm 3 in the paper
 
     return {
         "W": round(float(W), 4),

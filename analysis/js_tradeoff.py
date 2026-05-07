@@ -67,20 +67,12 @@ def yn(flag: bool) -> str:
 def fj(v) -> str:
     return f"{v:.4f}" if v is not None else "  N/A"
 
-def div(w: int) -> str:
-    return "─" * w
-
-
 def table1(attacker: list) -> None:
     print()
-    print("╔══════════════════════════════════════════════════════════════════╗")
-    print("║  TABLE 1: PRADA alone — N sweep (pure Sybil)                    ║")
-    print("║  Fixed: DELTA=0.96, MIN_QUERIES=100                             ║")
-    print("║  Source: attacker_001 first 6400 records                        ║")
-    print("╚══════════════════════════════════════════════════════════════════╝")
+    print("TABLE 1 — PRADA alone: N sweep (pure Sybil)")
+    print("  DELTA=0.96, MIN_QUERIES=100 | source: attacker_001 first 6400 records")
 
     hdr = f"{'N':>6}  {'qpa':>6}  {'Flagged/N':>10}  {'Warmup':>8}  {'Detect%':>8}"
-    w = len(hdr)
     print(hdr)
 
     rows = []
@@ -102,15 +94,12 @@ def table1(attacker: list) -> None:
 
 def table2(attacker: list, benign: list) -> None:
     print()
-    print("╔══════════════════════════════════════════════════════════════════╗")
-    print("║  TABLE 2: JS alone — N sweep (pure Sybil)                       ║")
-    print("║  Fixed: JS threshold=0.15, min_cluster=3, min_dmin=10           ║")
-    print("╚══════════════════════════════════════════════════════════════════╝")
+    print("TABLE 2 — JS alone: N sweep (pure Sybil)")
+    print("  threshold=0.15, min_cluster=3, min_dmin=10")
 
     hdr = (f"{'N':>6}  {'qpa':>6}  {'Eligible':>8}  "
            f"{'JS_within':>10}  {'JS_sybben':>10}  {'Gap':>8}  "
            f"{'Det':>5}  {'FP':>5}")
-    w = len(hdr)
     print(hdr)
 
     rows = []
@@ -151,12 +140,9 @@ def table2(attacker: list, benign: list) -> None:
 
 def table3(attacker: list, benign: list, prada_benign_fp: bool) -> None:
     print()
-    print("╔══════════════════════════════════════════════════════════════════╗")
-    print("║  TABLE 3: Combined PRADA + JS — N sweep (pure Sybil)            ║")
-    print("╚══════════════════════════════════════════════════════════════════╝")
+    print("TABLE 3 — Combined PRADA + JS: N sweep (pure Sybil)")
 
     hdr = f"{'N':>6}  {'PRADA_det':>10}  {'JS_det':>7}  {'Combined':>9}  {'FP':>5}"
-    w = len(hdr)
     print(hdr)
 
     rows = []
@@ -197,14 +183,11 @@ def table3(attacker: list, benign: list, prada_benign_fp: bool) -> None:
 
 def table4(mixed: list, benign: list, prada_benign_fp: bool) -> None:
     print()
-    print("╔══════════════════════════════════════════════════════════════════╗")
-    print("║  TABLE 4: Mixed Sybil — N sweep (combined PRADA + JS)           ║")
-    print("║  Source: mixed_sybil_source (30% normal queries per round)      ║")
-    print("╚══════════════════════════════════════════════════════════════════╝")
+    print("TABLE 4 — Mixed Sybil: N sweep (combined PRADA + JS)")
+    print("  source: mixed_sybil_source (30% normal queries per round)")
 
     hdr = (f"{'N':>6}  {'qpa':>6}  {'PRADA_fl/N':>12}  "
            f"{'JS_det':>7}  {'Combined':>9}  {'FP':>5}")
-    w = len(hdr)
     print(hdr)
 
     rows = []
@@ -246,17 +229,14 @@ def table4(mixed: list, benign: list, prada_benign_fp: bool) -> None:
 
 def table5(attacker: list, benign: list) -> None:
     print()
-    print("╔══════════════════════════════════════════════════════════════════╗")
-    print(f"║  TABLE 5: JS threshold sweep — N={N_FIXED} pure Sybil               ║")
-    print("║  Source: attacker_001 | Fixed N=64, min_cluster=3              ║")
-    print("╚══════════════════════════════════════════════════════════════════╝")
+    print(f"TABLE 5 — JS threshold sweep: N={N_FIXED} pure Sybil")
+    print("  source: attacker_001 | fixed N=64, min_cluster=3")
 
     recs = redistribute_queries(attacker, N_FIXED)
     combined = recs + benign
 
     hdr = (f"{'Threshold':>10}  {'JS_within':>10}  {'JS_sybben':>10}  "
            f"{'Gap':>8}  {'Det':>5}  {'FP':>5}")
-    w = len(hdr)
     print(hdr)
 
     rows = []
@@ -290,17 +270,14 @@ def table5(attacker: list, benign: list) -> None:
 
 def table6(mixed: list, benign: list) -> None:
     print()
-    print("╔══════════════════════════════════════════════════════════════════╗")
-    print(f"║  TABLE 6: JS threshold sweep — N={N_FIXED} mixed Sybil              ║")
-    print("║  Source: mixed_sybil_source | Fixed N=64, min_cluster=3        ║")
-    print("╚══════════════════════════════════════════════════════════════════╝")
+    print(f"TABLE 6 — JS threshold sweep: N={N_FIXED} mixed Sybil")
+    print("  source: mixed_sybil_source | fixed N=64, min_cluster=3")
 
     recs = redistribute_queries(mixed, N_FIXED)
     combined = recs + benign
 
     hdr = (f"{'Threshold':>10}  {'JS_within':>10}  {'JS_sybben':>10}  "
            f"{'Gap':>8}  {'Det':>5}  {'FP':>5}")
-    w = len(hdr)
     print(hdr)
 
     rows = []

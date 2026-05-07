@@ -16,13 +16,11 @@ from config import DEVICE, MODEL_PATH, LOG_PATH
 from PIL import Image
 import io
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
-
 if not MODEL_PATH.exists():
     raise FileNotFoundError(f"Victim model not found at: {MODEL_PATH}")
 
-model = SimpleCNN().to(device)
-model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
+model = SimpleCNN().to(DEVICE)
+model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
 model.eval()
 
 app = FastAPI(title="Victim MNIST API", version="2.0")
@@ -62,7 +60,7 @@ def log_query(record: dict) -> None:
 
 @app.get("/")
 def root():
-    return {"service": "Victim MNIST API", "status": "ok", "device": device}
+    return {"service": "Victim MNIST API", "status": "ok", "device": DEVICE}
 
 @app.get("/health")
 def health():
@@ -80,7 +78,7 @@ def predict(req: PredictRequest):
     img = validate_image(req.image)
     x = img.reshape(1, 1, 28, 28)
 
-    xt = torch.from_numpy(x).to(device)
+    xt = torch.from_numpy(x).to(DEVICE)
     with torch.no_grad():
         logits = model(xt)
         probs = torch.softmax(logits, dim=1).cpu().numpy()[0]

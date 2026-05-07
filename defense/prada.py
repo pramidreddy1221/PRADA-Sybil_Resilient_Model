@@ -1,3 +1,4 @@
+# Runs Algorithm 3 from Juuti et al. EuroS&P 2019. Flags accounts where W < DELTA=0.96.
 from config import DELTA, LOG_PATH
 from defense.logs import load_logs
 from defense.distances import compute_dmin_per_account
@@ -49,7 +50,7 @@ def run_prada(delta: float = DELTA, log_path=LOG_PATH) -> dict:
         }
 
         W_str = str(shapiro_result["W"]) if shapiro_result["W"] else "N/A"
-        flagged_str = "🚨 ATTACK" if shapiro_result["flagged"] else "✅ benign"
+        flagged_str = "ATTACK" if shapiro_result["flagged"] else "benign"
 
         print(f"{account_id:<20} {n_queries:<10} {len(D):<12} {W_str:<8} {flagged_str}")
 

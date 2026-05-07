@@ -3,6 +3,9 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
+from torchvision import datasets, transforms
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import RBF
 from config import DEVICE, MNIST_PATH
 
 def train_substitute(model, images: np.ndarray, labels: list, epochs: int = 10):
@@ -37,8 +40,6 @@ def train_substitute(model, images: np.ndarray, labels: list, epochs: int = 10):
 
 
 def evaluate_substitute(model, images: np.ndarray, victim_labels: list) -> float:
-    from torchvision import datasets, transforms
-
     mnist_test = datasets.MNIST(
         root=str(MNIST_PATH),
         train=False,
@@ -64,12 +65,9 @@ def evaluate_substitute(model, images: np.ndarray, victim_labels: list) -> float
 
 
 def train_substitute_cvsearch(model, images: np.ndarray, labels: list):
-    from sklearn.gaussian_process import GaussianProcessRegressor
-    from sklearn.gaussian_process.kernels import RBF
-
     N_FOLDS = 5
-    LR_LOG_MIN, LR_LOG_MAX = np.log10(1e-4), np.log10(1e-2)  # -4.0, -2.0
-    EP_LOG_MIN, EP_LOG_MAX = np.log10(10),   np.log10(320)    #  1.0, ~2.505
+    LR_LOG_MIN, LR_LOG_MAX = np.log10(1e-4), np.log10(1e-2)
+    EP_LOG_MIN, EP_LOG_MAX = np.log10(10),   np.log10(320)
 
     X_all = torch.tensor(images).unsqueeze(1)
     y_all = torch.tensor(labels, dtype=torch.long)
@@ -128,7 +126,6 @@ def train_substitute_cvsearch(model, images: np.ndarray, labels: list):
         observed_y.append(acc)
         return lr, epochs, acc
 
-    # Step 1: 4 corner points
     print("  [BO] Step 1: evaluating 4 corner points...")
     corners = [
         (LR_LOG_MIN, EP_LOG_MIN),
@@ -140,7 +137,6 @@ def train_substitute_cvsearch(model, images: np.ndarray, labels: list):
         lr, ep, acc = observe(log_lr, log_ep)
         print(f"    lr={lr:.0e}  epochs={ep:3d}  val_acc={acc*100:.2f}%")
 
-    # Step 2: 11 random points uniformly inside log space
     print("  [BO] Step 2: evaluating 11 random points...")
     random_pts = rng.uniform(
         [LR_LOG_MIN, EP_LOG_MIN],
@@ -156,9 +152,8 @@ def train_substitute_cvsearch(model, images: np.ndarray, labels: list):
         np.linspace(LR_LOG_MIN, LR_LOG_MAX, 40),
         np.linspace(EP_LOG_MIN, EP_LOG_MAX, 25)
     )
-    candidates = np.column_stack([g_lr.ravel(), g_ep.ravel()])  # (1000, 2)
+    candidates = np.column_stack([g_lr.ravel(), g_ep.ravel()])
 
-    # Step 3: iterations 16 to 30, GP-guided (UCB acquisition: mean + std)
     print("  [BO] Step 3: 15 GP-guided iterations...")
     kernel = RBF()
     for iteration in range(16, 31):
@@ -172,7 +167,7 @@ def train_substitute_cvsearch(model, images: np.ndarray, labels: list):
         gp.fit(X_obs, y_obs)
 
         mu, std = gp.predict(candidates, return_std=True)
-        next_log_lr, next_log_ep = candidates[np.argmax(mu + std)]
+        next_log_lr, next_log_ep = candidates[np.argmax(mu + std)]  # UCB acquisition: balances exploitation of high mean with exploration of high uncertainty
 
         lr, ep, acc = observe(next_log_lr, next_log_ep)
         print(f"    iter {iteration:2d}: lr={lr:.0e}  epochs={ep:3d}  val_acc={acc*100:.2f}%")

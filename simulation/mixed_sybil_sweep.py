@@ -1,16 +1,17 @@
 import sys
+import json
 from pathlib import Path
 
 _ROOT = Path(__file__).resolve().parent.parent
 if str(_ROOT) not in sys.path:
     sys.path.insert(0, str(_ROOT))
 
-from simulation.mixed          import run_mixed_attack
-from simulation.sybil          import redistribute_queries
-from defense.prada             import run_prada_on_records
-from defense.sybil_detection   import run_sybil_detection
-from defense.logs              import load_logs
-from config                    import LOG_PATH
+from simulation.mixed import run_mixed_attack
+from simulation.sybil import redistribute_queries
+from defense.prada import run_prada_on_records
+from defense.sybil_detection import run_sybil_detection
+from defense.logs import load_logs
+from config import LOG_PATH
 
 N_SYBIL = 64
 SOURCE_ACCOUNT = "mixed_sybil_source"
@@ -59,8 +60,8 @@ def main() -> None:
     sybil_accts = sorted(a for a in prada_results if a.startswith("sybil_"))
     benign_accts = sorted(a for a in prada_results if not a.startswith("sybil_"))
 
-    n_sybil_flagged = sum(1 for a in sybil_accts  if prada_results[a]["flagged"])
-    n_sybil_warmup = sum(1 for a in sybil_accts  if prada_results[a]["W"] is None)
+    n_sybil_flagged = sum(1 for a in sybil_accts if prada_results[a]["flagged"])
+    n_sybil_warmup = sum(1 for a in sybil_accts if prada_results[a]["W"] is None)
     n_benign_flagged = sum(1 for a in benign_accts if prada_results[a]["flagged"])
 
     print(f"\n[Step 5b] JS divergence cross-account detection...")
@@ -71,7 +72,6 @@ def main() -> None:
 
     benign_fp = bool(benign_in_cluster) or bool(n_benign_flagged)
 
-    print()
     print("RESULTS")
 
     warmup_note = f"  ({n_sybil_warmup} in warmup — below MIN_QUERIES)" if n_sybil_warmup else ""
@@ -98,7 +98,6 @@ def main() -> None:
         if sd["mean_js_cross"] is not None:
             print(f"  Sybil-Benign mean JS : {sd['mean_js_cross']:.4f}")
 
-    import json
     out_path = _ROOT / "analysis" / "results" / "mixed_sybil_sweep.json"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     result_data = {
@@ -114,8 +113,6 @@ def main() -> None:
     }
     out_path.write_text(json.dumps(result_data, indent=2), encoding="utf-8")
     print(f"Saved → {out_path.relative_to(_ROOT)}")
-
-    print()
 
 
 if __name__ == "__main__":
