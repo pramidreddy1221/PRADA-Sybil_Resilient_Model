@@ -1,6 +1,6 @@
 # Extending PRADA for Sybil-Resilient Model Extraction Detection
 
-PRADA (Juuti et al., EuroS&P 2019) detects model extraction attacks by checking whether an account's query-distance sequence follows a normal distribution. A Sybil attacker defeats this by splitting queries across N fake accounts, keeping each one under PRADA's 100-query warmup threshold. This project adds a second detection layer based on cross-account JS divergence. Sybil accounts all query with Jacobian-generated images that follow the same underlying pattern, so their dmin histograms converge. Benign accounts don't. The JS extension detects Sybil at N=4 through N=128 with zero false positives. At N=256, per-account histograms thin out and detection fails.
+PRADA (Juuti et al., EuroS&P 2019) detects model extraction attacks by checking whether an account's query-distance sequence follows a normal distribution. A Sybil attacker defeats this by splitting queries across N fake accounts, keeping each one under PRADA's 100-query warmup threshold. This project adds a second detection layer based on cross-account JS divergence. Sybil accounts all query with Jacobian-generated images that follow the same underlying pattern, so their dmin histograms converge. Benign accounts don't.The JS extension detects Sybil at N=4 through N=128 with zero false positives. Beyond N>=192, histogram sparsity collapses the JS separation gap, making detection increasingly unstable despite the detector still firing under the current threshold configuration.
 
 ## Setup
 
@@ -11,6 +11,10 @@ pip install -r requirements.txt
 ```
 
 The victim model weights (`victim/victim_model.pt`) must exist before running any other component. The trained weights achieve 99.08% MNIST test accuracy.
+
+If the weights file is missing, generate it using the training notebook:
+
+victim/01_train_victim.ipynb
 
 ## How to Run
 
@@ -69,6 +73,7 @@ cleanup/         Log trimming utility (trims to first N records per account)
 utils/           Image load/save helpers
 victim/          SimpleCNN model definition and trained weights
 logs/            Query log (queries.jsonl) - created at runtime by the API
+ui/              Simple browser-based visualization/debug interface
 ```
 
 ## Key Results
@@ -84,7 +89,7 @@ logs/            Query log (queries.jsonl) - created at runtime by the API
 **Sybil evasion and JS extension:**
 - N=64 Sybil accounts: PRADA flags **0/64**. Each account accumulates ~90 dmin distances - below the MIN_QUERIES=100 threshold - because the first query per class seeds the reference set without generating a distance. N=64 is not arbitrary - it follows directly from 6400 total queries divided by MIN_QUERIES=100.
 - JS extension detects N=64 Sybil with within-cluster mean JS = 0.1107, Sybil-benign mean JS = 0.2844. Zero false positives.
-- Detection holds at N=128. Fails at N=256 as histograms become too sparse.
+- Detection remains reliable through N=128. At N>=192, within-cluster JS begins exceeding cross-cluster JS as per-account histograms become sparse, indicating degradation of the underlying separation signal even though the detector still fires under the fixed threshold.
 
 **ROC analysis:**
 - JS detector pair-level AUC: **0.9978** (round-robin distribution, 64 Sybil vs 64 benign accounts)
@@ -92,7 +97,7 @@ logs/            Query log (queries.jsonl) - created at runtime by the API
 - PRADA ROC AUC: **1.0** - but computed from only 2 W scores (1 attacker, 1 benign); not statistically informative
 
 **Limitations:**
-- JS detection degrades at N>128 - per-account histograms thin below the SYBIL_MIN_DMIN=10 floor
+- JS detection becomes unstable at N>=192 as per-account histograms become sparse and the JS separation gap collapses or inverts
 - Mixed 70-30 Sybil reduces the JS separation gap to 0.002 at some configurations (still detected, but margin is narrow)
 - The JS threshold (0.15) was chosen on the same data used for evaluation - no held-out test set
 - PRADA AUC=1.0 should not be cited as a robust result; it reflects 2-sample step-function behavior
