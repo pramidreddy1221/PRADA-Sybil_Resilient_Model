@@ -158,11 +158,11 @@ def print_summary_table(results: dict) -> None:
 
 def _range_str(vals: list) -> str:
     if not vals:
-        return "—"
+        return "-"
     lo, hi = min(vals), max(vals)
     if lo == hi:
         return f"{lo:.4f}"
-    return f"[{lo:.4f} – {hi:.4f}]"
+    return f"[{lo:.4f} - {hi:.4f}]"
 
 
 if __name__ == "__main__":

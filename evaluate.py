@@ -197,7 +197,7 @@ def _print_summary(rows: list):
     for row in rows:
         combined = row["combined"]
         if not row["is_attack"]:
-            combined = f"No FP {'✓' if combined=='YES' else '✗'}"
+            combined = "No FP" if combined == "YES" else "FP DETECTED"
         fp = f"  [{row['fp_note']}]" if row.get("fp_note") else ""
         print(f"  {row['scenario']:<18} {row['prada']:<30} {row['sybil']:<28} {combined}{fp}")
 

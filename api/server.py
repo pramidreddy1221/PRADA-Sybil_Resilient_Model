@@ -60,7 +60,7 @@ def log_query(record: dict) -> None:
 
 @app.get("/")
 def root():
-    return {"service": "Victim MNIST API", "status": "ok", "device": DEVICE}
+    return {"service": "Victim MNIST API", "status": "ok", "device": str(DEVICE)}
 
 @app.get("/health")
 def health():

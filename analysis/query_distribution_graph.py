@@ -94,7 +94,7 @@ def main():
         label_y = bar.get_height() + 0.003 if gap >= 0 else gap - 0.012
         ax2.text(bar.get_x() + bar.get_width() / 2, label_y,
                  f"{gap:.3f}", ha="center", va="bottom", fontsize=8)
-        det_label = "Detected ✓" if det else "Not Detected ✗"
+        det_label = "Detected" if det else "Not Detected"
         det_y = label_y + 0.018 if gap >= 0 else label_y - 0.018
         ax2.text(bar.get_x() + bar.get_width() / 2, det_y,
                  det_label, ha="center", va="bottom", fontsize=8)
